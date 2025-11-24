@@ -1,0 +1,15 @@
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/bin/Debug/net8.0/Inventory.Application.deps.json
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/bin/Debug/net8.0/Inventory.Application.dll
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/bin/Debug/net8.0/Inventory.Application.pdb
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/bin/Debug/net8.0/Inventory.Domain.dll
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/bin/Debug/net8.0/Inventory.Domain.pdb
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/obj/Debug/net8.0/Inventory.Application.csproj.AssemblyReference.cache
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/obj/Debug/net8.0/Inventory.Application.GeneratedMSBuildEditorConfig.editorconfig
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/obj/Debug/net8.0/Inventory.Application.AssemblyInfoInputs.cache
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/obj/Debug/net8.0/Inventory.Application.AssemblyInfo.cs
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/obj/Debug/net8.0/Inventory.Application.csproj.CoreCompileInputs.cache
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/obj/Debug/net8.0/Inventor.1DAC6D85.Up2Date
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/obj/Debug/net8.0/Inventory.Application.dll
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/obj/Debug/net8.0/refint/Inventory.Application.dll
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/obj/Debug/net8.0/Inventory.Application.pdb
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/obj/Debug/net8.0/ref/Inventory.Application.dll

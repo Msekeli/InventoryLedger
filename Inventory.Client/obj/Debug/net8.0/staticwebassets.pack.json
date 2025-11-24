@@ -1,0 +1,61 @@
+{
+  "Files": [
+    {
+      "Id": "/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/bin/Debug/net8.0/wwwroot/_framework/blazor.webassembly.js",
+      "PackagePath": "staticwebassets/_framework/blazor.webassembly.js"
+    },
+    {
+      "Id": "/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/compressed/sgqsq6qmcq.gz",
+      "PackagePath": "staticwebassets/_framework/blazor.webassembly.js.gz"
+    },
+    {
+      "Id": "/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/scopedcss/bundle/Inventory.Client.styles.css",
+      "PackagePath": "staticwebassets/Inventory.Client.styles.css"
+    },
+    {
+      "Id": "/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/wwwroot/css/app.css",
+      "PackagePath": "staticwebassets/css/app.css"
+    },
+    {
+      "Id": "/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/wwwroot/css/bootstrap/bootstrap.min.css",
+      "PackagePath": "staticwebassets/css/bootstrap/bootstrap.min.css"
+    },
+    {
+      "Id": "/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/wwwroot/css/bootstrap/bootstrap.min.css.map",
+      "PackagePath": "staticwebassets/css/bootstrap/bootstrap.min.css.map"
+    },
+    {
+      "Id": "/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/wwwroot/favicon.png",
+      "PackagePath": "staticwebassets/favicon.png"
+    },
+    {
+      "Id": "/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/wwwroot/icon-192.png",
+      "PackagePath": "staticwebassets/icon-192.png"
+    },
+    {
+      "Id": "/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/wwwroot/index.html",
+      "PackagePath": "staticwebassets/index.html"
+    },
+    {
+      "Id": "/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/wwwroot/sample-data/weather.json",
+      "PackagePath": "staticwebassets/sample-data/weather.json"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.Inventory.Client.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.Inventory.Client.props",
+      "PackagePath": "build\\Inventory.Client.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.Inventory.Client.props",
+      "PackagePath": "buildMultiTargeting\\Inventory.Client.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.Inventory.Client.props",
+      "PackagePath": "buildTransitive\\Inventory.Client.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
