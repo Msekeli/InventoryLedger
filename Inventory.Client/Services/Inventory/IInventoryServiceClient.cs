@@ -1,5 +1,11 @@
-namespace Inventory.Client.Services.Inventory;
+using Inventory.Client.Models.Inventory;
 
-public interface IInventoryServiceClient
+namespace Inventory.Client.Services.Inventory
 {
+    public interface IInventoryServiceClient
+    {
+        Task<InventorySummaryDto> GetSummaryAsync();
+        Task<List<InventoryItemDto>> GetLowStockItemsAsync();
+        Task<InventoryItemDto?> GetItemSummaryAsync(int itemId);
+    }
 }

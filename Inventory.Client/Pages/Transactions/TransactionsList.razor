@@ -1,0 +1,78 @@
+@page "/transactions"
+@using global::Inventory.Client.Models.Transactions
+@using global::Inventory.Client.Services.Transactions
+@inject IStockTransactionService TransactionService
+@inject NavigationManager Nav
+
+<h3 class="mt-3">Transactions</h3>
+
+<button class="btn btn-primary mb-3" @onclick="Add">
+    Add Transaction
+</button>
+
+@if (transactions == null)
+{
+    <p>Loading...</p>
+}
+else if (transactions.Count == 0)
+{
+    <p>No transactions found.</p>
+}
+else
+{
+    <div class="table-responsive shadow-sm">
+        <table class="table table-striped align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Item ID</th>
+                    <th>Quantity Change</th>
+                    <th>Reference</th>
+                    <th>Timestamp</th>
+                    <th>Direction</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            @foreach (var t in transactions)
+            {
+                <tr>
+                    <td>@t.Id</td>
+                    <td>@t.ItemId</td>
+                    <td>@t.QuantityChange</td>
+                    <td>@t.Reference</td>
+                    <td>@t.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>
+                        @if (t.IsIncrease)
+                        {
+                            <span class="text-success">IN</span>
+                        }
+                        else if (t.IsDecrease)
+                        {
+                            <span class="text-danger">OUT</span>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<StockTransactionDto>? transactions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        transactions = await TransactionService.GetAllAsync();
+    }
+
+    private void Add()
+    {
+        Nav.NavigateTo("/transactions/add");
+    }
+}

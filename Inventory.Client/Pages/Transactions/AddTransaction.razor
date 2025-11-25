@@ -1,0 +1,53 @@
+@page "/transactions/add"
+@using global::Inventory.Client.Models.Transactions
+@using global::Inventory.Client.Services.Transactions
+@inject IStockTransactionService TransactionService
+@inject NavigationManager Nav
+
+<h3 class="mt-3">Add Transaction</h3>
+
+<div class="card p-3 shadow-sm">
+
+    <div class="mb-3">
+        <label class="form-label">Item ID</label>
+        <input class="form-control" type="number" @bind="model.ItemId" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Quantity</label>
+        <input class="form-control" type="number" @bind="model.Quantity" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Type</label>
+        <select class="form-select" @bind="model.Type">
+            <option value="IN">IN</option>
+            <option value="OUT">OUT</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Remarks</label>
+        <textarea class="form-control" rows="2" @bind="model.Remarks"></textarea>
+    </div>
+
+    <button class="btn btn-success" @onclick="Save">Save</button>
+    <button class="btn btn-secondary ms-2" @onclick="Cancel">Cancel</button>
+</div>
+
+@code {
+    private CreateStockTransactionDto model = new();
+
+    private async Task Save()
+    {
+        var success = await TransactionService.CreateAsync(model);
+
+        if (success)
+            Nav.NavigateTo("/transactions");
+    }
+
+    private void Cancel()
+    {
+        Nav.NavigateTo("/transactions");
+    }
+}

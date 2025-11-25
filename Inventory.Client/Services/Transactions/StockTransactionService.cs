@@ -1,11 +1,27 @@
-namespace Inventory.Client.Services.Transactions;
+using System.Net.Http.Json;
+using Inventory.Client.Models.Transactions;
 
-public class StockTransactionService : IStockTransactionService
+namespace Inventory.Client.Services.Transactions
 {
-    private readonly HttpClient _http;
-
-    public StockTransactionService(HttpClient http)
+    public class StockTransactionService : IStockTransactionService
     {
-        _http = http;
+        private readonly HttpClient _http;
+
+        public StockTransactionService(HttpClient http)
+        {
+            _http = http;
+        }
+
+        public async Task<bool> CreateAsync(CreateStockTransactionDto dto)
+        {
+            var response = await _http.PostAsJsonAsync("api/transactions", dto);
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<List<StockTransactionDto>> GetAllAsync()
+        {
+            var result = await _http.GetFromJsonAsync<List<StockTransactionDto>>("api/transactions");
+            return result ?? new List<StockTransactionDto>();
+        }
     }
 }
