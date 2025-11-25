@@ -615,6 +615,7 @@
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/Inventory.Client.AssemblyInfo.cs
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/Inventory.Client.csproj.CoreCompileInputs.cache
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/Inventory.Client.MvcApplicationPartsAssemblyInfo.cache
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/Inventory.Client.sourcelink.json
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/webcil/Microsoft.AspNetCore.Authorization.wasm
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/webcil/Microsoft.AspNetCore.Components.wasm
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/webcil/Microsoft.AspNetCore.Components.Forms.wasm
@@ -816,8 +817,8 @@
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.Inventory.Client.props
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.Inventory.Client.props
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/staticwebassets.pack.json
-/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/scopedcss/Layout/MainLayout.razor.rz.scp.css
-/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/scopedcss/Layout/NavMenu.razor.rz.scp.css
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/scopedcss/Shared/MainLayout.razor.rz.scp.css
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/scopedcss/Shared/NavMenu.razor.rz.scp.css
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/scopedcss/bundle/Inventory.Client.styles.css
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/scopedcss/projectbundle/Inventory.Client.bundle.scp.css
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/compressed/sgqsq6qmcq.gz

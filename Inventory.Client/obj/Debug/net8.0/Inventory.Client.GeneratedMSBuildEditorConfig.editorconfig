@@ -26,26 +26,34 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Pages/Counter.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQ291bnRlci5yYXpvcg==
+[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Pages/Items/ItemCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSXRlbXMvSXRlbUNyZWF0ZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Pages/Home.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSG9tZS5yYXpvcg==
+[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Pages/Items/ItemEdit.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSXRlbXMvSXRlbUVkaXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Pages/Weather.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvV2VhdGhlci5yYXpvcg==
+[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Pages/Items/ItemsList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSXRlbXMvSXRlbXNMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Pages/Transactions/AddTransaction.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVHJhbnNhY3Rpb25zL0FkZFRyYW5zYWN0aW9uLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Pages/Transactions/TransactionsList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVHJhbnNhY3Rpb25zL1RyYW5zYWN0aW9uc0xpc3QucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Layout/MainLayout.razor]
-build_metadata.AdditionalFiles.TargetPath = TGF5b3V0L01haW5MYXlvdXQucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = b-13fo34ydgb
+[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL01haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-snxinryviz
 
-[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Layout/NavMenu.razor]
-build_metadata.AdditionalFiles.TargetPath = TGF5b3V0L05hdk1lbnUucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = b-aakh4cb2vs
+[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL05hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-pooyn5hkeb
