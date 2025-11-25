@@ -13,3 +13,4 @@
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/obj/Debug/net8.0/refint/Inventory.Application.dll
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/obj/Debug/net8.0/Inventory.Application.pdb
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/obj/Debug/net8.0/ref/Inventory.Application.dll
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Application/obj/Debug/net8.0/Inventory.Application.sourcelink.json

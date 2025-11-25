@@ -54,6 +54,6 @@ else
 
     private async Task LoadTransactions()
     {
-        transactions = await TransactionService.GetByItemAsync(itemId);
+        transactions = await TransactionService.GetByItemIdAsync(itemId);
     }
 }

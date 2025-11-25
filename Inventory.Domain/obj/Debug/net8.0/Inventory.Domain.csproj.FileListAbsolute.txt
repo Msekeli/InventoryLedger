@@ -9,3 +9,4 @@
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Domain/obj/Debug/net8.0/refint/Inventory.Domain.dll
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Domain/obj/Debug/net8.0/Inventory.Domain.pdb
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Domain/obj/Debug/net8.0/ref/Inventory.Domain.dll
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Domain/obj/Debug/net8.0/Inventory.Domain.sourcelink.json

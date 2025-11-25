@@ -17,3 +17,4 @@
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.pdb
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.genruntimeconfig.cache
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/ref/Inventory.Infrastructure.dll
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.sourcelink.json

@@ -1,27 +1,32 @@
 using System.Net.Http.Json;
 using Inventory.Client.Models.Transactions;
 
-namespace Inventory.Client.Services.Transactions;
-
-public class StockTransactionService : IStockTransactionService
+namespace Inventory.Client.Services.Transactions
 {
-    private readonly HttpClient _http;
-
-    public StockTransactionService(HttpClient http)
+    public class StockTransactionService : IStockTransactionService
     {
-        _http = http;
-    }
+        private readonly HttpClient _http;
 
-    public async Task<List<StockTransactionDto>> GetByItemAsync(int itemId)
-    {
-        return await _http.GetFromJsonAsync<List<StockTransactionDto>>(
-            $"api/stocktransactions/{itemId}"
-        ) ?? new List<StockTransactionDto>();
-    }
+        public StockTransactionService(HttpClient http)
+        {
+            _http = http;
+        }
 
-    public async Task<bool> CreateAsync(CreateStockTransactionDto dto)
+       public async Task<List<StockTransactionDto>> GetAllAsync()
     {
-        var response = await _http.PostAsJsonAsync("api/stocktransactions", dto);
-        return response.IsSuccessStatusCode;
+        var result = await _http.GetFromJsonAsync<List<StockTransactionDto>>("api/transactions");
+        return result ?? new List<StockTransactionDto>();
+}      
+        public async Task<List<StockTransactionDto>> GetByItemIdAsync(int itemId)
+        {
+            var result = await _http.GetFromJsonAsync<List<StockTransactionDto>>($"api/transactions/item/{itemId}");
+            return result ?? new List<StockTransactionDto>();
+        }
+
+        public async Task<bool> CreateAsync(CreateStockTransactionDto model)
+        {
+            var response = await _http.PostAsJsonAsync("api/transactions", model);
+            return response.IsSuccessStatusCode;
+        }
     }
 }

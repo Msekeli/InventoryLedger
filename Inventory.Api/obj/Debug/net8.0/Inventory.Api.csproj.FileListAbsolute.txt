@@ -132,3 +132,4 @@
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Api/obj/Debug/net8.0/Inventory.Api.pdb
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Api/obj/Debug/net8.0/Inventory.Api.genruntimeconfig.cache
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Api/obj/Debug/net8.0/ref/Inventory.Api.dll
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Api/obj/Debug/net8.0/Inventory.Api.sourcelink.json
