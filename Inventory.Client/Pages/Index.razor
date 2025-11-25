@@ -1,145 +1,46 @@
 @page "/"
-@inject IInventoryServiceClient InventoryService
-@inject IStockTransactionService TransactionService
-@inject IItemService ItemService
+@inject NavigationManager Nav
 
-<h3 class="mt-4">Dashboard</h3>
 
-@if (loading)
-{
-    <p>Loading...</p>
-}
-else
-{
-    <div class="row mb-4">
-        <div class="col-md-4 mb-3">
-            <div class="card shadow-sm p-3 text-center">
-                <h5>Total Items</h5>
-                <h2>@totalItems</h2>
-            </div>
-        </div>
+<h2 class="mb-4">Dashboard</h2>
 
-        <div class="col-md-4 mb-3">
-            <div class="card shadow-sm p-3 text-center">
-                <h5>Total Stock On Hand</h5>
-                <h2>@totalOnHand</h2>
-            </div>
-        </div>
+<div class="card p-4 shadow-sm mb-3">
+    <h4>Welcome back, Derz 👋</h4>
+    <p class="text-muted">Select a section from the navigation bar to get started.</p>
+</div>
 
-        <div class="col-md-4 mb-3">
-            <div class="card shadow-sm p-3 text-center">
-                <h5>Low Stock Items</h5>
-                <h2 class="text-danger">@lowStockCount</h2>
-            </div>
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <div class="card p-3 shadow-sm">
+            <h5>Items</h5>
+            <p>Manage inventory items.</p>
+            <button class="btn btn-primary" @onclick="@(() => Nav.NavigateTo("/items"))">
+                Go to Items
+            </button>
         </div>
     </div>
 
-    <div class="row">
-
-        <!-- Low Stock Section -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm p-3">
-                <h5 class="mb-3 text-danger">Low Stock Alerts</h5>
-
-                @if (lowStockItems.Count == 0)
-                {
-                    <p>All items are healthy.</p>
-                }
-                else
-                {
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>OnHand</th>
-                                <th>Threshold</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach (var item in lowStockItems)
-                        {
-                            <tr class="table-danger">
-                                <td>@item.Name</td>
-                                <td>@item.OnHand</td>
-                                <td>@item.LowStockThreshold</td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
-                }
-            </div>
+    <div class="col-md-4 mb-3">
+        <div class="card p-3 shadow-sm">
+            <h5>Transactions</h5>
+            <p>Record stock in and out.</p>
+            <button class="btn btn-primary" @onclick="@(() => Nav.NavigateTo("/transactions"))">
+                View Transactions
+            </button>
         </div>
-
-        <!-- Recent Transactions Section -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm p-3">
-                <h5 class="mb-3">Recent Transactions</h5>
-
-                @if (recentTransactions.Count == 0)
-                {
-                    <p>No transactions recorded yet.</p>
-                }
-                else
-                {
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Change</th>
-                                <th>Reference</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach (var t in recentTransactions)
-                        {
-                            <tr>
-                                <td>@t.ItemId</td>
-                                <td class="@(t.IsIncrease ? "text-success" : "text-danger")">
-                                    @t.QuantityChange
-                                </td>
-                                <td>@t.Reference</td>
-                                <td>@t.Timestamp.ToString("yyyy-MM-dd")</td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
-                }
-            </div>
-        </div>
-
     </div>
-}
+
+    <div class="col-md-4 mb-3">
+        <div class="card p-3 shadow-sm">
+            <h5>Inventory Summary</h5>
+            <p>Current stock levels overview.</p>
+            <button class="btn btn-primary" @onclick="@(() => Nav.NavigateTo("/inventory/summary"))">
+                View Summary
+            </button>
+        </div>
+    </div>
+</div>
 
 @code {
-    private bool loading = true;
-
-    private int totalItems;
-    private int totalOnHand;
-    private int lowStockCount;
-
-    private List<InventoryItemDto> lowStockItems = new();
-    private List<StockTransactionDto> recentTransactions = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        loading = true;
-
-        // Load summary
-        var summary = await InventoryService.GetSummaryAsync();
-        totalItems = summary.Items.Count;
-        totalOnHand = summary.Items.Sum(x => x.OnHand);
-        lowStockItems = summary.Items.Where(x => x.IsLowStock).ToList();
-
-        lowStockCount = lowStockItems.Count;
-
-        // Load transactions (take latest 5)
-        var allTrans = await TransactionService.GetAllAsync();
-        recentTransactions = allTrans
-            .OrderByDescending(t => t.Timestamp)
-            .Take(5)
-            .ToList();
-
-        loading = false;
-    }
+   
 }

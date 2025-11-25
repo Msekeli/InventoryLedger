@@ -1,8 +1,3 @@
-/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.csproj.AssemblyReference.cache
-/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
-/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.AssemblyInfoInputs.cache
-/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.AssemblyInfo.cs
-/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.csproj.CoreCompileInputs.cache
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/bin/Debug/net8.0/Inventory.Infrastructure.deps.json
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/bin/Debug/net8.0/Inventory.Infrastructure.runtimeconfig.json
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/bin/Debug/net8.0/Inventory.Infrastructure.dll
@@ -11,10 +6,15 @@
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/bin/Debug/net8.0/Inventory.Domain.dll
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/bin/Debug/net8.0/Inventory.Domain.pdb
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/bin/Debug/net8.0/Inventory.Application.pdb
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.csproj.AssemblyReference.cache
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.AssemblyInfoInputs.cache
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.AssemblyInfo.cs
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.csproj.CoreCompileInputs.cache
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.sourcelink.json
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventor.89798F14.Up2Date
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.dll
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/refint/Inventory.Infrastructure.dll
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.pdb
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.genruntimeconfig.cache
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/ref/Inventory.Infrastructure.dll
-/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Infrastructure/obj/Debug/net8.0/Inventory.Infrastructure.sourcelink.json

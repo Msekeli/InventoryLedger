@@ -118,6 +118,7 @@
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Api/obj/Debug/net8.0/Inventory.Api.csproj.CoreCompileInputs.cache
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Api/obj/Debug/net8.0/Inventory.Api.MvcApplicationPartsAssemblyInfo.cs
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Api/obj/Debug/net8.0/Inventory.Api.MvcApplicationPartsAssemblyInfo.cache
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Api/obj/Debug/net8.0/Inventory.Api.sourcelink.json
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Api/obj/Debug/net8.0/staticwebassets.build.json
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Api/obj/Debug/net8.0/staticwebassets.development.json
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Api/obj/Debug/net8.0/staticwebassets/msbuild.Inventory.Api.Microsoft.AspNetCore.StaticWebAssets.props
@@ -132,4 +133,3 @@
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Api/obj/Debug/net8.0/Inventory.Api.pdb
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Api/obj/Debug/net8.0/Inventory.Api.genruntimeconfig.cache
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Api/obj/Debug/net8.0/ref/Inventory.Api.dll
-/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Api/obj/Debug/net8.0/Inventory.Api.sourcelink.json

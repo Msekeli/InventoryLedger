@@ -5,8 +5,8 @@
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Domain/obj/Debug/net8.0/Inventory.Domain.AssemblyInfoInputs.cache
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Domain/obj/Debug/net8.0/Inventory.Domain.AssemblyInfo.cs
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Domain/obj/Debug/net8.0/Inventory.Domain.csproj.CoreCompileInputs.cache
+/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Domain/obj/Debug/net8.0/Inventory.Domain.sourcelink.json
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Domain/obj/Debug/net8.0/Inventory.Domain.dll
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Domain/obj/Debug/net8.0/refint/Inventory.Domain.dll
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Domain/obj/Debug/net8.0/Inventory.Domain.pdb
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Domain/obj/Debug/net8.0/ref/Inventory.Domain.dll
-/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Domain/obj/Debug/net8.0/Inventory.Domain.sourcelink.json
