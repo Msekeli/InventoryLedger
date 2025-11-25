@@ -1,30 +1,49 @@
 @page "/items/create"
+@inject IItemService ItemService
+@inject NavigationManager Nav
 
 <h3 class="mt-3">Create Item</h3>
 
-<p>This is the Create Item page (placeholder).</p>
-
-<div class="card p-3">
-    <div class="mb-2">
-        <label>SKU</label>
-        <input class="form-control" />
+<div class="card p-3 shadow-sm">
+    <div class="mb-3">
+        <label class="form-label">SKU</label>
+        <input class="form-control" @bind="model.SKU" />
     </div>
 
-    <div class="mb-2">
-        <label>Name</label>
-        <input class="form-control" />
+    <div class="mb-3">
+        <label class="form-label">Name</label>
+        <input class="form-control" @bind="model.Name" />
     </div>
 
-    <div class="mb-2">
-        <label>Unit Price</label>
-        <input class="form-control" />
+    <div class="mb-3">
+        <label class="form-label">Unit Price</label>
+        <input class="form-control" type="number" step="0.01" @bind="model.UnitPrice" />
     </div>
 
-    <div class="mb-2">
-        <label>Low Stock Threshold</label>
-        <input class="form-control" />
+    <div class="mb-3">
+        <label class="form-label">Low Stock Threshold</label>
+        <input class="form-control" type="number" @bind="model.LowStockThreshold" />
     </div>
 
-    <button class="btn btn-success">Save</button>
-    <button class="btn btn-secondary ms-2">Cancel</button>
+    <button class="btn btn-success" @onclick="Create">Save</button>
+    <button class="btn btn-secondary ms-2" @onclick="Cancel">Cancel</button>
 </div>
+
+@code {
+    private ItemCreateDto model = new();
+
+    private async Task Create()
+    {
+        var success = await ItemService.CreateAsync(model);
+
+        if (success)
+        {
+            Nav.NavigateTo("/items");
+        }
+    }
+
+    private void Cancel()
+    {
+        Nav.NavigateTo("/items");
+    }
+}
