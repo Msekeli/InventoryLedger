@@ -44,7 +44,6 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
     await InventoryDbContextSeed.SeedAsync(db);
 }
-
 // Development Tools
 if (app.Environment.IsDevelopment())
 {
