@@ -1,6 +1,5 @@
 @page "/inventory"
 @inject IInventoryServiceClient InventoryService
-@inject IInventoryServiceClient InventoryService
 
 <h3 class="mt-3">Inventory Summary</h3>
 
@@ -11,17 +10,20 @@
 else
 {
     <div class="card p-3 shadow-sm mb-3">
-        <h5>Total Stock On Hand: @(summary.Items.Sum(i => i.OnHand))</h5>
-        <h5>Low Stock Items: @(summary.Items.Count(i => i.IsLow))</h5>
+        <h5>Total Inventory Value: R @summary.TotalInventoryValue</h5>
+        <h5>Total Items: @summary.Items.Count</h5>
+        <h5>Low Stock Items: @summary.Items.Count(i => i.IsLowStock)</h5>
     </div>
 
     <div class="table-responsive shadow-sm">
         <table class="table table-striped align-middle">
             <thead class="table-light">
                 <tr>
-                    <th>Item</th>
                     <th>SKU</th>
+                    <th>Name</th>
                     <th>On Hand</th>
+                    <th>Unit Price</th>
+                    <th>Value</th>
                     <th>Low Threshold</th>
                 </tr>
             </thead>
@@ -29,10 +31,12 @@ else
             <tbody>
             @foreach (var item in summary.Items)
             {
-                <tr class="@(item.IsLow ? "table-danger" : "")">
-                    <td>@item.Name</td>
+                <tr class="@(item.IsLowStock ? "table-danger" : "")">
                     <td>@item.SKU</td>
+                    <td>@item.Name</td>
                     <td>@item.OnHand</td>
+                    <td>R @item.UnitPrice</td>
+                    <td>R @item.Value</td>
                     <td>@item.LowStockThreshold</td>
                 </tr>
             }

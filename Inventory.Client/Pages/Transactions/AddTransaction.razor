@@ -1,6 +1,4 @@
 @page "/transactions/add"
-@using global::Inventory.Client.Models.Transactions
-@using global::Inventory.Client.Services.Transactions
 @inject IStockTransactionService TransactionService
 @inject NavigationManager Nav
 
@@ -21,24 +19,25 @@
     <div class="mb-3">
         <label class="form-label">Type</label>
         <select class="form-select" @bind="model.Type">
-            <option value="IN">IN</option>
-            <option value="OUT">OUT</option>
+            <option>IN</option>
+            <option>OUT</option>
         </select>
     </div>
 
     <div class="mb-3">
         <label class="form-label">Remarks</label>
-        <textarea class="form-control" rows="2" @bind="model.Remarks"></textarea>
+        <textarea class="form-control" rows="3" @bind="model.Remarks"></textarea>
     </div>
 
-    <button class="btn btn-success" @onclick="Save">Save</button>
+    <button class="btn btn-primary" @onclick="Create">Save</button>
     <button class="btn btn-secondary ms-2" @onclick="Cancel">Cancel</button>
+
 </div>
 
 @code {
     private CreateStockTransactionDto model = new();
 
-    private async Task Save()
+    private async Task Create()
     {
         var success = await TransactionService.CreateAsync(model);
 

@@ -1,10 +1,9 @@
 using Inventory.Client.Models.Transactions;
 
-namespace Inventory.Client.Services.Transactions
+namespace Inventory.Client.Services.Transactions;
+
+public interface IStockTransactionService
 {
-    public interface IStockTransactionService
-    {
-        Task<bool> CreateAsync(CreateStockTransactionDto dto);
-        Task<List<StockTransactionDto>> GetAllAsync();
-    }
+    Task<bool> CreateAsync(CreateStockTransactionDto dto);
+    Task<List<StockTransactionDto>> GetByItemAsync(int itemId);
 }

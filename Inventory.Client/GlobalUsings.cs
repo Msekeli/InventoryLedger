@@ -7,4 +7,3 @@ global using Inventory.Client.Services.Items;
 global using Inventory.Client.Services.Transactions;
 
 global using System.Net.Http.Json;
-

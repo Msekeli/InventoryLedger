@@ -1,0 +1,59 @@
+using System.Net.Http;
+using System.Net.Http.Json;
+
+namespace Inventory.Client.Services
+{
+    public static class HttpClientExtensions
+    {
+        public static async Task<T?> GetAsyncSafe<T>(this HttpClient http, string url)
+        {
+            try
+            {
+                return await http.GetFromJsonAsync<T>(url);
+            }
+            catch
+            {
+                return default;
+            }
+        }
+
+        public static async Task<bool> PostAsyncSafe<T>(this HttpClient http, string url, T data)
+        {
+            try
+            {
+                var response = await http.PostAsJsonAsync(url, data);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static async Task<bool> PutAsyncSafe<T>(this HttpClient http, string url, T data)
+        {
+            try
+            {
+                var response = await http.PutAsJsonAsync(url, data);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static async Task<bool> DeleteAsyncSafe(this HttpClient http, string url)
+        {
+            try
+            {
+                var response = await http.DeleteAsync(url);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+    }
+}
