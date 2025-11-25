@@ -1,17 +1,25 @@
 /* /Shared/MainLayout.razor.rz.scp.css */
-.page-layout[b-snxinryviz] {
+.app-container[b-snxinryviz] {
+    background-color: #f4f6f9; /* Clean corporate gray */
     min-height: 100vh;
-    background-color: #f5f5f5; /* soft light gray */
-    padding: 2rem;
 }
 
-.content-wrapper[b-snxinryviz] {
-    max-width: 900px;
-    margin: 0 auto;
-    background: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+main.container[b-snxinryviz] {
+    padding-top: 20px;
+    padding-bottom: 40px;
+}
+
+.navbar-brand[b-snxinryviz] {
+    font-size: 1.25rem;
+}
+
+.nav-link.active[b-snxinryviz] {
+    font-weight: bold;
+    color: #fff !important;
+}
+
+.nav-link[b-snxinryviz] {
+    color: rgba(255,255,255,0.9) !important;
 }
 /* /Shared/NavMenu.razor.rz.scp.css */
 .top-nav[b-pooyn5hkeb] {
