@@ -1,55 +1,287 @@
 @page "/inventory"
+@using Inventory.Client.Models.Inventory
+@using System.Linq
 @inject IInventoryServiceClient InventoryService
 
 <h3 class="mt-3">Inventory Summary</h3>
 
-@if (summary is null)
+@if (summary == null)
 {
     <p>Loading...</p>
 }
 else
 {
-    <div class="card p-3 shadow-sm mb-3">
-        <h5>Total Inventory Value: R @summary.TotalInventoryValue</h5>
-        <h5>Total Items: @summary.Items.Count</h5>
-        <h5>Low Stock Items: @summary.Items.Count(i => i.IsLowStock)</h5>
+    @* SUMMARY CARDS *@
+    <div class="row mb-4">
+
+        <div class="col-md-4">
+            <div class="card p-3 shadow-sm text-center">
+                <h6>Total Inventory Value</h6>
+                <h4 class="fw-bold">R @summary.TotalInventoryValue</h4>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-3 shadow-sm text-center">
+                <h6>Total Items</h6>
+                <h4>@summary.Items.Count</h4>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-3 shadow-sm text-center">
+                <h6>Low Stock Items</h6>
+                <h4 class="text-danger">@summary.Items.Count(i => i.IsLowStock)</h4>
+            </div>
+        </div>
+
     </div>
 
+    @* FILTERS *@
+    <div class="card p-3 shadow-sm mb-4">
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <input class="form-control"
+                       placeholder="Search by name or SKU..."
+                       @oninput="OnSearchChanged" />
+            </div>
+
+            <div class="col-md-3">
+                <select class="form-select" @onchange="OnLowFilterChanged">
+                    <option value="">All Items</option>
+                    <option value="low">Low Stock Only</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <button class="btn btn-secondary w-100" @onclick="ClearFilters">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    @* TABLE *@
     <div class="table-responsive shadow-sm">
-        <table class="table table-striped align-middle">
+        <table class="table table-hover align-middle">
+
             <thead class="table-light">
                 <tr>
-                    <th>SKU</th>
-                    <th>Name</th>
-                    <th>On Hand</th>
-                    <th>Unit Price</th>
-                    <th>Value</th>
-                    <th>Low Threshold</th>
+                    <th @onclick="()=>SortBy(nameof(InventoryItemDto.SKU))" style="cursor:pointer;">
+                        SKU @SortIcon(nameof(InventoryItemDto.SKU))
+                    </th>
+
+                    <th @onclick="()=>SortBy(nameof(InventoryItemDto.Name))" style="cursor:pointer;">
+                        Name @SortIcon(nameof(InventoryItemDto.Name))
+                    </th>
+
+                    <th @onclick="()=>SortBy(nameof(InventoryItemDto.OnHand))" style="cursor:pointer;">
+                        On Hand @SortIcon(nameof(InventoryItemDto.OnHand))
+                    </th>
+
+                    <th @onclick="()=>SortBy(nameof(InventoryItemDto.UnitPrice))" style="cursor:pointer;">
+                        Unit Price @SortIcon(nameof(InventoryItemDto.UnitPrice))
+                    </th>
+
+                    <th @onclick="()=>SortBy(nameof(InventoryItemDto.Value))" style="cursor:pointer;">
+                        Value @SortIcon(nameof(InventoryItemDto.Value))
+                    </th>
+
+                    <th @onclick="()=>SortBy(nameof(InventoryItemDto.LowStockThreshold))" style="cursor:pointer;">
+                        Threshold @SortIcon(nameof(InventoryItemDto.LowStockThreshold))
+                    </th>
                 </tr>
             </thead>
 
             <tbody>
-            @foreach (var item in summary.Items)
-            {
-                <tr class="@(item.IsLowStock ? "table-danger" : "")">
-                    <td>@item.SKU</td>
-                    <td>@item.Name</td>
-                    <td>@item.OnHand</td>
-                    <td>R @item.UnitPrice</td>
-                    <td>R @item.Value</td>
-                    <td>@item.LowStockThreshold</td>
-                </tr>
-            }
+                @foreach (var item in pagedItems)
+                {
+                    <tr class="@(item.IsLowStock ? "table-danger" : "")">
+                        <td>@item.SKU</td>
+                        <td>@item.Name</td>
+                        <td>@item.OnHand</td>
+                        <td>R @item.UnitPrice</td>
+                        <td>R @item.Value</td>
+                        <td>@item.LowStockThreshold</td>
+                    </tr>
+                }
             </tbody>
+
         </table>
+    </div>
+
+    @* PAGINATION *@
+    <div class="d-flex justify-content-between align-items-center mt-3">
+
+        <select class="form-select form-select-sm" style="width: auto;"
+                @onchange="OnPageSizeChanged">
+            <option value="10">10 per page</option>
+            <option value="25">25 per page</option>
+            <option value="50">50 per page</option>
+        </select>
+
+        <div>
+            <button class="btn btn-outline-secondary btn-sm me-2"
+                    @onclick="PrevPage" disabled="@(pageIndex == 0)">
+                Previous
+            </button>
+
+            <button class="btn btn-outline-secondary btn-sm"
+                    @onclick="NextPage" disabled="@((pageIndex + 1) * pageSize >= filteredItems.Count)">
+                Next
+            </button>
+        </div>
     </div>
 }
 
 @code {
     private InventorySummaryDto? summary;
 
+    private List<InventoryItemDto> allItems = new();
+    private List<InventoryItemDto> filteredItems = new();
+    private List<InventoryItemDto> pagedItems = new();
+
+    private string search = "";
+    private string lowFilter = "";
+
+    private string sortField = nameof(InventoryItemDto.Name);
+    private bool sortAsc = true;
+
+    private int pageSize = 10;
+    private int pageIndex = 0;
+
     protected override async Task OnInitializedAsync()
     {
         summary = await InventoryService.GetSummaryAsync();
+
+        if (summary != null)
+            allItems = summary.Items;
+
+        ApplyFilters();
+    }
+
+    private void OnSearchChanged(ChangeEventArgs e)
+    {
+        search = e.Value?.ToString() ?? "";
+        pageIndex = 0;
+        ApplyFilters();
+    }
+
+    private void OnLowFilterChanged(ChangeEventArgs e)
+    {
+        lowFilter = e.Value?.ToString() ?? "";
+        pageIndex = 0;
+        ApplyFilters();
+    }
+
+    private void ClearFilters()
+    {
+        search = "";
+        lowFilter = "";
+        sortField = nameof(InventoryItemDto.Name);
+        sortAsc = true;
+        pageIndex = 0;
+
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        IEnumerable<InventoryItemDto> q = allItems;
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.ToLower();
+            q = q.Where(i =>
+                i.Name.ToLower().Contains(s) ||
+                i.SKU.ToLower().Contains(s));
+        }
+
+        if (lowFilter == "low")
+            q = q.Where(i => i.IsLowStock);
+
+        filteredItems = q.ToList();
+
+        ApplySorting();
+        ApplyPagination();
+    }
+
+    private void ApplySorting()
+    {
+        filteredItems = sortField switch
+        {
+            nameof(InventoryItemDto.SKU) => sortAsc ? filteredItems.OrderBy(i => i.SKU).ToList()
+                                                    : filteredItems.OrderByDescending(i => i.SKU).ToList(),
+
+            nameof(InventoryItemDto.Name) => sortAsc ? filteredItems.OrderBy(i => i.Name).ToList()
+                                                     : filteredItems.OrderByDescending(i => i.Name).ToList(),
+
+            nameof(InventoryItemDto.OnHand) => sortAsc ? filteredItems.OrderBy(i => i.OnHand).ToList()
+                                                       : filteredItems.OrderByDescending(i => i.OnHand).ToList(),
+
+            nameof(InventoryItemDto.UnitPrice) => sortAsc ? filteredItems.OrderBy(i => i.UnitPrice).ToList()
+                                                          : filteredItems.OrderByDescending(i => i.UnitPrice).ToList(),
+
+            nameof(InventoryItemDto.Value) => sortAsc ? filteredItems.OrderBy(i => i.Value).ToList()
+                                                      : filteredItems.OrderByDescending(i => i.Value).ToList(),
+
+            nameof(InventoryItemDto.LowStockThreshold) => sortAsc ? filteredItems.OrderBy(i => i.LowStockThreshold).ToList()
+                                                                  : filteredItems.OrderByDescending(i => i.LowStockThreshold).ToList(),
+
+            _ => filteredItems
+        };
+    }
+
+    private void SortBy(string field)
+    {
+        if (sortField == field)
+            sortAsc = !sortAsc;
+        else
+        {
+            sortField = field;
+            sortAsc = true;
+        }
+
+        ApplyFilters();
+    }
+
+    private RenderFragment SortIcon(string field) => builder =>
+    {
+        if (sortField != field) return;
+
+        string icon = sortAsc ? "▲" : "▼";
+        builder.AddContent(0, " " + icon);
+    };
+
+    private void ApplyPagination()
+    {
+        pagedItems = filteredItems
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private void OnPageSizeChanged(ChangeEventArgs e)
+    {
+        pageSize = int.Parse(e.Value!.ToString()!);
+        pageIndex = 0;
+        ApplyPagination();
+    }
+
+    private void NextPage()
+    {
+        if ((pageIndex + 1) * pageSize < filteredItems.Count)
+        {
+            pageIndex++;
+            ApplyPagination();
+        }
+    }
+
+    private void PrevPage()
+    {
+        if (pageIndex > 0)
+        {
+            pageIndex--;
+            ApplyPagination();
+        }
     }
 }

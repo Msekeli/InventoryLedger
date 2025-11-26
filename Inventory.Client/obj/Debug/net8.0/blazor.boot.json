@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "Inventory.Client",
   "resources": {
-    "hash": "sha256-8XiOm2wjMzo5nWROcrXjQVgKWaIih9UwOc9uStim0L0=",
+    "hash": "sha256-8NK56OUUqxRghW1evSiq0kQdHxPVEBR7s8HEMBFjAZs=",
     "jsModuleNative": {
       "dotnet.native.8.0.21.gb64jyllv3.js": "sha256-9Fzd5We95Rp03dEKIAbYjPDR3eWyLbmjMlYStvxyiok="
     },
@@ -208,10 +208,10 @@
       "mscorlib.wasm": "sha256-MZJ1V6miMP318lQowft4FPkcszcibPLDTwKj235fSAc=",
       "netstandard.wasm": "sha256-RYAURbR1AHkUZYjKgu+B/i3N3VP4abnAaH+vxwJ8d3c=",
       "System.Private.CoreLib.wasm": "sha256-4YzdATaWUDkUkRpe+hl+T61TaCjRVapVUtqTIai3Gd8=",
-      "Inventory.Client.wasm": "sha256-WoBCRqsEp3NB49OJinH+PkfiD+Q51H38HfSTmMhWp+0="
+      "Inventory.Client.wasm": "sha256-taNhbGNVtHkNKh8bufqjjj9m34rTTjcTXQljhUfyb5U="
     },
     "pdb": {
-      "Inventory.Client.pdb": "sha256-3P8bGdXp3kFDA3EOGODMh1Op4ktPD56u37fFzreUzb8="
+      "Inventory.Client.pdb": "sha256-Mw7RY5rGr7r6mQUUkPwi3ZQtixeyfKeHFeqdSjZ6+Dk="
     }
   },
   "cacheBootResources": true,
