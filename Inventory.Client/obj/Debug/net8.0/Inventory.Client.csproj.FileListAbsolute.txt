@@ -817,10 +817,7 @@
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.Inventory.Client.props
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.Inventory.Client.props
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/staticwebassets.pack.json
-/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/scopedcss/Shared/MainLayout.razor.rz.scp.css
-/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/scopedcss/Shared/NavMenu.razor.rz.scp.css
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/scopedcss/bundle/Inventory.Client.styles.css
-/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/scopedcss/projectbundle/Inventory.Client.bundle.scp.css
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/compressed/sgqsq6qmcq.gz
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/compressed/3aytzb7a81.gz
 /Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/obj/Debug/net8.0/compressed/iju23c5t88.gz

@@ -1,46 +1,121 @@
 @page "/"
 @inject NavigationManager Nav
 
+<h2 class="fw-bold text-white mb-4">Dashboard</h2>
 
-<h2 class="mb-4">Dashboard</h2>
-
-<div class="card p-4 shadow-sm mb-3">
-    <h4>Welcome back, Derz 👋</h4>
-    <p class="text-muted">Select a section from the navigation bar to get started.</p>
+<!-- Greeting -->
+<div class="card bg-dark text-light border-0 shadow-sm p-4 mb-4">
+    <h4 class="fw-bold text-warning">Welcome back, Derz 👋</h4>
+    <p class="text-secondary">Here’s your real-time inventory snapshot.</p>
 </div>
 
-<div class="row">
-    <div class="col-md-4 mb-3">
-        <div class="card p-3 shadow-sm">
-            <h5>Items</h5>
-            <p>Manage inventory items.</p>
-            <button class="btn btn-primary" @onclick="@(() => Nav.NavigateTo("/items"))">
-                Go to Items
-            </button>
+<!-- Key Metrics -->
+<div class="row g-4 mb-4">
+
+    <div class="col-md-3">
+        <div class="card bg-dark text-light border-0 shadow p-3">
+            <h6 class="text-secondary mb-1">Total Items</h6>
+            <h3 class="fw-bold text-warning">142</h3>
         </div>
     </div>
 
-    <div class="col-md-4 mb-3">
-        <div class="card p-3 shadow-sm">
-            <h5>Transactions</h5>
-            <p>Record stock in and out.</p>
-            <button class="btn btn-primary" @onclick="@(() => Nav.NavigateTo("/transactions"))">
-                View Transactions
-            </button>
+    <div class="col-md-3">
+        <div class="card bg-dark text-light border-0 shadow p-3">
+            <h6 class="text-secondary mb-1">Low Stock</h6>
+            <h3 class="fw-bold text-danger">7</h3>
         </div>
     </div>
 
-    <div class="col-md-4 mb-3">
-        <div class="card p-3 shadow-sm">
-            <h5>Inventory Summary</h5>
-            <p>Current stock levels overview.</p>
-            <button class="btn btn-primary" @onclick="@(() => Nav.NavigateTo("/inventory/summary"))">
-                View Summary
-            </button>
+    <div class="col-md-3">
+        <div class="card bg-dark text-light border-0 shadow p-3">
+            <h6 class="text-secondary mb-1">Transactions Today</h6>
+            <h3 class="fw-bold text-info">24</h3>
         </div>
     </div>
+
+    <div class="col-md-3">
+        <div class="card bg-dark text-light border-0 shadow p-3">
+            <h6 class="text-secondary mb-1">Total Stock Value</h6>
+            <h3 class="fw-bold text-success">R 58,430</h3>
+        </div>
+    </div>
+
 </div>
 
-@code {
-   
-}
+<div class="row g-4">
+
+    <!-- Low Stock Snapshot -->
+    <div class="col-md-6">
+        <div class="card bg-dark text-light border-0 shadow p-3">
+            <h5 class="fw-bold text-warning mb-3">Low Stock Items</h5>
+
+            <table class="table table-dark table-hover table-sm mb-0">
+                <thead>
+                    <tr class="text-secondary">
+                        <th>Item</th>
+                        <th>Qty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Printer Paper A4</td>
+                        <td class="text-danger fw-bold">3</td>
+                    </tr>
+                    <tr>
+                        <td>Blue Pens</td>
+                        <td class="text-danger fw-bold">5</td>
+                    </tr>
+                    <tr>
+                        <td>USB Drives</td>
+                        <td class="text-danger fw-bold">2</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="col-md-6">
+        <div class="card bg-dark text-light border-0 shadow p-3">
+            <h5 class="fw-bold text-warning mb-3">Recent Transactions</h5>
+
+            <ul class="list-group list-group-flush">
+
+                <li class="list-group-item bg-dark text-light d-flex justify-content-between">
+                    <span>Stock In – “Blue Pens”</span>
+                    <span class="text-success fw-bold">+50</span>
+                </li>
+
+                <li class="list-group-item bg-dark text-light d-flex justify-content-between">
+                    <span>Stock Out – “USB Drives”</span>
+                    <span class="text-danger fw-bold">-10</span>
+                </li>
+
+                <li class="list-group-item bg-dark text-light d-flex justify-content-between">
+                    <span>Stock In – “A4 Paper”</span>
+                    <span class="text-success fw-bold">+100</span>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<!-- Quick Actions -->
+<div class="mt-4 d-flex gap-3">
+    <button class="btn btn-outline-warning fw-bold px-4"
+            @onclick="@(() => Nav.NavigateTo("/items"))">
+        Manage Items
+    </button>
+
+    <button class="btn btn-outline-warning fw-bold px-4"
+            @onclick="@(() => Nav.NavigateTo("/transactions"))">
+        Record Transaction
+    </button>
+
+    <button class="btn btn-outline-warning fw-bold px-4"
+            @onclick="@(() => Nav.NavigateTo("/inventory"))">
+        View Summary
+    </button>
+</div>
