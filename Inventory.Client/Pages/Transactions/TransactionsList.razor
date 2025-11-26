@@ -1,59 +1,383 @@
 @page "/transactions"
+@using Inventory.Client.Models.Items
+@using Inventory.Client.Models.Transactions
+@using Inventory.Client.Components.Transactions   @* REQUIRED for modal *@
+
+@inject IItemService ItemService
 @inject IStockTransactionService TransactionService
 
 <h3 class="mt-3">Transaction History</h3>
 
+<!-- ITEM SELECTOR -->
 <div class="card p-3 shadow-sm mb-3">
-    <div class="mb-3">
-        <label class="form-label">Item ID</label>
-        <input class="form-control" type="number" @bind="itemId" />
-    </div>
+    <label class="form-label">Select Item</label>
 
-    <button class="btn btn-primary" @onclick="LoadTransactions">Load</button>
+    <select class="form-select w-50" @onchange="OnItemSelected">
+        <option value="">-- Select an item --</option>
+
+        @if (items != null)
+        {
+            @foreach (var item in items)
+            {
+                <option value="@item.Id">@item.SKU - @item.Name</option>
+            }
+        }
+    </select>
 </div>
 
-@if (transactions == null)
+@if (selectedItemId == 0)
 {
-    <p>Enter an Item ID and click Load.</p>
+    <p>Select an item to view transactions.</p>
 }
-else if (transactions.Count == 0)
-{
-    <p>No transactions found for this item.</p>
-}
-else
-{
-    <div class="table-responsive shadow-sm">
-        <table class="table table-striped align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Quantity</th>
-                    <th>Reference</th>
-                </tr>
-            </thead>
 
-            <tbody>
-            @foreach (var tx in transactions)
-            {
-                <tr class="@(tx.QuantityChange > 0 ? "table-success" : "table-danger")">
-                    <td>@tx.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
-                    <td>@(tx.QuantityChange > 0 ? "IN" : "OUT")</td>
-                    <td>@Math.Abs(tx.QuantityChange)</td>
-                    <td>@tx.Reference</td>
-                </tr>
-            }
-            </tbody>
-        </table>
+@if (selectedItemId > 0)
+{
+    <!-- TOP RIGHT ADD BUTTON -->
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-primary" @onclick="() => showAddModal = true">
+            + Add Transaction
+        </button>
     </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="card shadow-sm p-3 text-center">
+                <h6>IN Today</h6>
+                <h4 class="text-success">@todayIn</h4>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm p-3 text-center">
+                <h6>OUT Today</h6>
+                <h4 class="text-danger">@todayOut</h4>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm p-3 text-center">
+                <h6>Net Movement</h6>
+                <h4 class="@(netMovement >= 0 ? "text-success" : "text-danger")">@netMovement</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="card p-3 shadow-sm mb-3">
+
+        <div class="row g-3">
+
+            <div class="col-md-4">
+                <input @oninput="OnSearchChanged" class="form-control" placeholder="Search by reference..." />
+            </div>
+
+            <div class="col-md-3">
+                <select class="form-select" @onchange="OnTypeFilterChanged">
+                    <option value="">All Types</option>
+                    <option value="IN">IN</option>
+                    <option value="OUT">OUT</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <select class="form-select" @onchange="OnDateFilterChanged">
+                    <option value="">All Dates</option>
+                    <option value="today">Today</option>
+                    <option value="7">Last 7 Days</option>
+                    <option value="30">Last 30 Days</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button class="btn btn-secondary w-100" @onclick="ClearFilters">Clear</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    @if (pagedTransactions == null)
+    {
+        <p>Loading transactions...</p>
+    }
+    else if (pagedTransactions.Count == 0)
+    {
+        <p>No transactions match the selected filters.</p>
+    }
+    else
+    {
+        <div class="table-responsive shadow-sm">
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light position-sticky top-0">
+                    <tr>
+                        <th @onclick='() => SortBy("date")' style="cursor:pointer;">
+                            Date @SortIndicator("date")
+                        </th>
+
+                        <th @onclick='() => SortBy("type")' style="cursor:pointer;">
+                            Type @SortIndicator("type")
+                        </th>
+
+                        <th @onclick='() => SortBy("qty")' style="cursor:pointer;">
+                            Quantity @SortIndicator("qty")
+                        </th>
+
+                        <th>Reference</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var tx in pagedTransactions)
+                    {
+                        <tr class="@(tx.QuantityChange > 0 ? "table-success" : "table-danger")">
+                            <td>@tx.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@(tx.QuantityChange > 0 ? "IN" : "OUT")</td>
+                            <td>@Math.Abs(tx.QuantityChange)</td>
+                            <td>@tx.Reference</td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+                <select class="form-select form-select-sm" style="width: auto;" @onchange="OnPageSizeChanged">
+                    <option value="10">10 per page</option>
+                    <option value="25">25 per page</option>
+                    <option value="50">50 per page</option>
+                </select>
+            </div>
+
+            <div>
+                <button class="btn btn-outline-secondary btn-sm me-2"
+                        @onclick="PrevPage" disabled="@(pageIndex == 0)">
+                    Previous
+                </button>
+
+                <button class="btn btn-outline-secondary btn-sm"
+                        @onclick="NextPage" disabled="@((pageIndex + 1) * pageSize >= filteredTransactions.Count)">
+                    Next
+                </button>
+            </div>
+        </div>
+    }
+
+    <!-- TRANSACTION MODAL -->
+    @if (showAddModal)
+    {
+        <TransactionFormModal
+            ItemId="selectedItemId"
+            OnSaved="ReloadTransactions"
+            OnClose="@(()=> showAddModal = false)" />
+    }
 }
 
 @code {
-    private int itemId;
-    private List<StockTransactionDto>? transactions;
+    // DATA
+    private List<ItemResponseDto>? items;
+    private List<StockTransactionDto>? allTransactions = new();
+    private List<StockTransactionDto> filteredTransactions = new();
+    private List<StockTransactionDto> pagedTransactions = new();
 
-    private async Task LoadTransactions()
+    private int selectedItemId = 0;
+
+    // FILTERS
+    private string search = "";
+    private string filterType = "";
+    private string filterDate = "";
+
+    // SORTING
+    private string sortField = "date";
+    private bool sortAsc = false;
+
+    // PAGINATION
+    private int pageSize = 10;
+    private int pageIndex = 0;
+
+    // SUMMARY
+    private int todayIn = 0;
+    private int todayOut = 0;
+    private int netMovement = 0;
+
+    // MODAL
+    private bool showAddModal = false;
+
+    protected override async Task OnInitializedAsync()
     {
-        transactions = await TransactionService.GetByItemIdAsync(itemId);
+        items = await ItemService.GetAllAsync();
+    }
+
+    private async Task OnItemSelected(ChangeEventArgs e)
+    {
+        if (!int.TryParse(e.Value?.ToString(), out selectedItemId))
+        {
+            selectedItemId = 0;
+            return;
+        }
+
+        allTransactions = await TransactionService.GetByItemIdAsync(selectedItemId);
+        ApplyFilters();
+        CalculateSummary();
+    }
+
+    private void CalculateSummary()
+    {
+        var today = DateTime.Now.Date;
+
+        todayIn = allTransactions
+            .Where(t => t.Timestamp.ToLocalTime().Date == today && t.QuantityChange > 0)
+            .Sum(t => t.QuantityChange);
+
+        todayOut = allTransactions
+            .Where(t => t.Timestamp.ToLocalTime().Date == today && t.QuantityChange < 0)
+            .Sum(t => Math.Abs(t.QuantityChange));
+
+        netMovement = todayIn - todayOut;
+    }
+
+    // FILTERS
+    private void ApplyFilters()
+    {
+        IEnumerable<StockTransactionDto> q = allTransactions;
+
+        if (!string.IsNullOrWhiteSpace(search))
+            q = q.Where(t => t.Reference.Contains(search, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(filterType))
+            q = q.Where(t => (t.QuantityChange > 0 ? "IN" : "OUT") == filterType);
+
+        if (!string.IsNullOrWhiteSpace(filterDate))
+        {
+            if (filterDate == "today")
+            {
+                var d = DateTime.Now.Date;
+                q = q.Where(t => t.Timestamp.ToLocalTime().Date == d);
+            }
+            else
+            {
+                int days = int.Parse(filterDate);
+                var min = DateTime.Now.AddDays(-days);
+                q = q.Where(t => t.Timestamp.ToLocalTime() >= min);
+            }
+        }
+
+        filteredTransactions = q.ToList();
+        SortTransactions();
+        ApplyPagination();
+    }
+
+    // SORTING
+    private void SortTransactions()
+    {
+        filteredTransactions = sortField switch
+        {
+            "date" =>
+                sortAsc ? filteredTransactions.OrderBy(t => t.Timestamp).ToList()
+                        : filteredTransactions.OrderByDescending(t => t.Timestamp).ToList(),
+
+            "type" =>
+                sortAsc ? filteredTransactions.OrderBy(t => t.QuantityChange > 0).ToList()
+                        : filteredTransactions.OrderByDescending(t => t.QuantityChange > 0).ToList(),
+
+            "qty" =>
+                sortAsc ? filteredTransactions.OrderBy(t => Math.Abs(t.QuantityChange)).ToList()
+                        : filteredTransactions.OrderByDescending(t => Math.Abs(t.QuantityChange)).ToList(),
+
+            _ => filteredTransactions
+        };
+    }
+
+    private void SortBy(string field)
+    {
+        if (sortField == field)
+            sortAsc = !sortAsc;
+        else
+        {
+            sortField = field;
+            sortAsc = true;
+        }
+
+        SortTransactions();
+        ApplyPagination();
+    }
+
+    private RenderFragment SortIndicator(string field) => __builder =>
+    {
+        if (sortField != field) return;
+
+        string icon = sortAsc ? "↑" : "↓";
+        __builder.AddContent(0, " " + icon);
+    };
+
+    // PAGINATION
+    private void ApplyPagination()
+    {
+        pageIndex = Math.Max(pageIndex, 0);
+
+        pagedTransactions = filteredTransactions
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private void NextPage()
+    {
+        pageIndex++;
+        ApplyPagination();
+    }
+
+    private void PrevPage()
+    {
+        if (pageIndex > 0)
+            pageIndex--;
+
+        ApplyPagination();
+    }
+
+    private void OnPageSizeChanged(ChangeEventArgs e)
+    {
+        pageSize = int.Parse(e.Value!.ToString()!);
+        pageIndex = 0;
+        ApplyPagination();
+    }
+
+    // FILTER HANDLERS
+    private void OnSearchChanged(ChangeEventArgs e)
+    {
+        search = e.Value?.ToString() ?? "";
+        ApplyFilters();
+    }
+
+    private void OnTypeFilterChanged(ChangeEventArgs e)
+    {
+        filterType = e.Value?.ToString() ?? "";
+        ApplyFilters();
+    }
+
+    private void OnDateFilterChanged(ChangeEventArgs e)
+    {
+        filterDate = e.Value?.ToString() ?? "";
+        ApplyFilters();
+    }
+
+    private void ClearFilters()
+    {
+        search = "";
+        filterType = "";
+        filterDate = "";
+        ApplyFilters();
+    }
+
+    // REFRESH AFTER ADD
+    private async Task ReloadTransactions()
+    {
+        allTransactions = await TransactionService.GetByItemIdAsync(selectedItemId);
+        ApplyFilters();
+        CalculateSummary();
     }
 }

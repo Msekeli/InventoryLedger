@@ -7,7 +7,7 @@ public static class InventoryDbContextSeed
 {
     public static async Task SeedAsync(InventoryDbContext db)
     {
-        // Force wipe existing items & transactions
+        // Wipe data
         db.StockTransactions.RemoveRange(db.StockTransactions);
         db.Items.RemoveRange(db.Items);
         await db.SaveChangesAsync();
@@ -30,13 +30,55 @@ public static class InventoryDbContextSeed
         await db.Items.AddRangeAsync(items);
         await db.SaveChangesAsync();
 
-        // Seed Initial Stock (100 in for each item)
-        var transactions = items.Select(i => new StockTransaction
+        var random = new Random();
+        var transactions = new List<StockTransaction>();
+
+        // Generate 30 days of realistic activity
+        foreach (var item in items)
         {
-            ItemId = i.Id,
-            QuantityChange = 100,
-            Reference = "Initial stock"
-        });
+            int startingStock = random.Next(80, 150); // Each item gets a random realistic starting amount
+
+            // 1. Add initial stock
+            transactions.Add(new StockTransaction
+            {
+                ItemId = item.Id,
+                QuantityChange = startingStock,
+                Reference = "Initial stock",
+                Timestamp = DateTime.UtcNow.AddDays(-30).AddHours(random.Next(1, 8))
+            });
+
+            // 2. Now simulate activity for each of the last 30 days
+            for (int day = 0; day < 30; day++)
+            {
+                DateTime dayTimestamp = DateTime.UtcNow.AddDays(-day);
+
+                // Chance of a sale each day
+                if (random.NextDouble() < 0.7)
+                {
+                    int saleQty = random.Next(1, 8);
+                    transactions.Add(new StockTransaction
+                    {
+                        ItemId = item.Id,
+                        QuantityChange = -saleQty,
+                        Reference = "Sale",
+                        Timestamp = dayTimestamp.AddHours(random.Next(8, 18))
+                    });
+                }
+
+                // Chance of restock every few days
+                if (random.NextDouble() < 0.2)
+                {
+                    int restockQty = random.Next(10, 40);
+                    transactions.Add(new StockTransaction
+                    {
+                        ItemId = item.Id,
+                        QuantityChange = restockQty,
+                        Reference = "Restock",
+                        Timestamp = dayTimestamp.AddHours(random.Next(10, 16))
+                    });
+                }
+            }
+        }
 
         await db.StockTransactions.AddRangeAsync(transactions);
         await db.SaveChangesAsync();

@@ -1,0 +1,190 @@
+@using Inventory.Client.Models.Items
+@inject IItemService ItemService
+
+<!-- Toast Notification -->
+@if (showToast)
+{
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 4000;">
+        <div class="toast show text-bg-success border-0 shadow">
+            <div class="toast-body d-flex align-items-center">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                @toastMessage
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal -->
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">@Title</h5>
+                <button class="btn-close" @onclick="Close" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+
+                @* CREATE FORM *@
+                @if (IsCreate)
+                {
+                    <div class="mb-3">
+                        <label class="form-label">SKU</label>
+                        <input class="form-control" @bind="CreateModel.SKU" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input class="form-control" @bind="CreateModel.Name" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Unit Price</label>
+                        <input class="form-control" type="number" step="0.01" @bind="CreateModel.UnitPrice" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Low Stock Threshold</label>
+                        <input class="form-control" type="number" @bind="CreateModel.LowStockThreshold" />
+                    </div>
+                }
+                else
+                {
+                    @* EDIT FORM *@
+                    <div class="mb-3">
+                        <label class="form-label">SKU</label>
+                        <input class="form-control" disabled value="@EditModel?.SKU" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input class="form-control" @bind="UpdateModel.Name" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Unit Price</label>
+                        <input class="form-control" type="number" step="0.01" @bind="UpdateModel.UnitPrice" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Low Stock Threshold</label>
+                        <input class="form-control" type="number" @bind="UpdateModel.LowStockThreshold" />
+                    </div>
+                }
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary" @onclick="Save" disabled="@saving">
+                    @(saving ? "Saving..." : "Save")
+                </button>
+                <button class="btn btn-secondary" @onclick="Close" disabled="@saving">
+                    Cancel
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    // Props
+    [Parameter] public string Title { get; set; } = "Item";
+    [Parameter] public bool IsCreate { get; set; } = true;
+    [Parameter] public ItemResponseDto? EditModel { get; set; }
+    [Parameter] public EventCallback OnSaved { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    // DTOs
+    private ItemCreateDto CreateModel = new();
+    private ItemUpdateDto UpdateModel = new();
+
+    private bool saving = false;
+
+    // Toast
+    private bool showToast = false;
+    private string toastMessage = "";
+
+    protected override void OnParametersSet()
+    {
+        if (!IsCreate && EditModel != null)
+        {
+            UpdateModel = new ItemUpdateDto
+            {
+                Name = EditModel.Name,
+                UnitPrice = EditModel.UnitPrice,
+                LowStockThreshold = EditModel.LowStockThreshold
+            };
+        }
+        else
+        {
+            CreateModel = new ItemCreateDto();
+        }
+    }
+
+    private async Task Save()
+    {
+        saving = true;
+
+        try
+        {
+            bool success = false;
+
+            if (IsCreate)
+            {
+                if (string.IsNullOrWhiteSpace(CreateModel.SKU) ||
+                    string.IsNullOrWhiteSpace(CreateModel.Name))
+                {
+                    saving = false;
+                    return;
+                }
+
+                success = await ItemService.CreateAsync(CreateModel);
+            }
+            else
+            {
+                if (EditModel == null)
+                {
+                    saving = false;
+                    return;
+                }
+
+                success = await ItemService.UpdateAsync(EditModel.Id, UpdateModel);
+            }
+
+            if (success)
+            {
+                await ShowToast(IsCreate ? "Item created successfully" 
+                                         : "Item updated successfully");
+
+                // Let the toast show briefly *before* closing modal
+                await Task.Delay(400);
+
+                await OnSaved.InvokeAsync();
+            }
+        }
+        finally
+        {
+            saving = false;
+            await OnClose.InvokeAsync();
+        }
+    }
+
+    private async Task Close()
+    {
+        await OnClose.InvokeAsync();
+    }
+
+    private async Task ShowToast(string message)
+    {
+        toastMessage = message;
+        showToast = true;
+        StateHasChanged();
+
+        await Task.Delay(2000);
+
+        showToast = false;
+        StateHasChanged();
+    }
+}

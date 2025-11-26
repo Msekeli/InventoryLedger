@@ -1,52 +1,76 @@
 @page "/items"
+@using Inventory.Client.Models.Items
+@using Inventory.Client.Components.Items
 @inject IItemService ItemService
-@inject NavigationManager Nav
 
 <h3 class="mt-3">Items</h3>
 
-<button class="btn btn-primary mb-3" @onclick="Create">
-    Add New Item
-</button>
+<!-- SEARCH + CREATE BUTTON -->
+<div class="d-flex justify-content-between align-items-center mb-3">
 
-@if (items == null)
+    <!-- Search box with icon -->
+    <div class="input-group w-50">
+        <span class="input-group-text bg-white">
+            <i class="bi bi-search"></i>
+        </span>
+
+        <input class="form-control"
+               placeholder="Search items..."
+               @oninput="SearchChanged" />
+    </div>
+
+    <button class="btn btn-primary" @onclick="ShowCreateModal">
+        + Add Item
+    </button>
+</div>
+
+@if (pagedItems == null)
 {
     <p>Loading...</p>
 }
-else if (items.Count == 0)
+else if (pagedItems.Count == 0)
 {
     <p>No items found.</p>
 }
 else
 {
-    <div class="table-responsive shadow-sm">
-        <table class="table table-striped align-middle">
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
             <thead class="table-light">
                 <tr>
-                    <th>SKU</th>
-                    <th>Name</th>
-                    <th>Unit Price</th>
-                    <th>On Hand</th>
-                    <th style="width: 180px;"></th>
+                    <th @onclick="()=>SortBy(nameof(ItemResponseDto.SKU))"
+                        style="cursor:pointer">SKU @SortIcon(nameof(ItemResponseDto.SKU))</th>
+
+                    <th @onclick="()=>SortBy(nameof(ItemResponseDto.Name))"
+                        style="cursor:pointer">Name @SortIcon(nameof(ItemResponseDto.Name))</th>
+
+                    <th @onclick="()=>SortBy(nameof(ItemResponseDto.UnitPrice))"
+                        style="cursor:pointer">Price @SortIcon(nameof(ItemResponseDto.UnitPrice))</th>
+
+                    <th @onclick="()=>SortBy(nameof(ItemResponseDto.OnHand))"
+                        style="cursor:pointer">On Hand @SortIcon(nameof(ItemResponseDto.OnHand))</th>
+
+                    <th style="width: 160px;">Actions</th>
                 </tr>
             </thead>
 
             <tbody>
-                @foreach (var item in items)
+                @foreach (var item in pagedItems)
                 {
                     <tr>
                         <td>@item.SKU</td>
                         <td>@item.Name</td>
-                        <td>@item.UnitPrice</td>
+                        <td>R @item.UnitPrice</td>
                         <td>@item.OnHand</td>
                         <td>
                             <button class="btn btn-sm btn-outline-secondary me-2"
-                                    @onclick="() => Edit(item.Id)">
-                                Edit
+                                    @onclick="() => ShowEditModal(item)">
+                                <i class="bi bi-pencil"></i>
                             </button>
 
                             <button class="btn btn-sm btn-outline-danger"
-                                    @onclick="() => ConfirmDelete(item.Id, item.Name)">
-                                Delete
+                                    @onclick="() => ShowDeleteModal(item)">
+                                <i class="bi bi-trash"></i>
                             </button>
                         </td>
                     </tr>
@@ -54,24 +78,67 @@ else
             </tbody>
         </table>
     </div>
+
+    <!-- PAGINATION -->
+    <nav>
+        <ul class="pagination">
+            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                <button class="page-link" @onclick="PrevPage">Previous</button>
+            </li>
+
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <button class="page-link" @onclick="()=>GoToPage(i)">@i</button>
+                </li>
+            }
+
+            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                <button class="page-link" @onclick="NextPage">Next</button>
+            </li>
+        </ul>
+    </nav>
 }
 
-@if (showConfirm)
+<!-- CREATE MODAL -->
+@if (showCreateModal)
 {
-    <div class="modal-backdrop fade show"></div>
-    <div class="modal fade show d-block" tabindex="-1">
+    <ItemFormModal Title="Create Item"
+                   IsCreate="true"
+                   OnSaved="ReloadItems"
+                   OnClose="@(() => showCreateModal = false)" />
+}
+
+<!-- EDIT MODAL -->
+@if (showEditModal && selectedItem != null)
+{
+    <ItemFormModal Title="Edit Item"
+                   IsCreate="false"
+                   EditModel="selectedItem"
+                   OnSaved="ReloadItems"
+                   OnClose="@(() => showEditModal = false)" />
+}
+
+<!-- DELETE CONFIRMATION MODAL -->
+@if (showDeleteModal && selectedItem != null)
+{
+    <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5)">
         <div class="modal-dialog">
-            <div class="modal-content shadow">
+            <div class="modal-content">
+
                 <div class="modal-header">
-                    <h5 class="modal-title">Confirm Delete</h5>
+                    <h5 class="modal-title">Delete Item</h5>
                 </div>
+
                 <div class="modal-body">
-                    <p>Are you sure you want to delete <strong>@deleteName</strong>?</p>
+                    <p>Are you sure you want to delete <strong>@selectedItem.Name</strong>?</p>
                 </div>
+
                 <div class="modal-footer">
                     <button class="btn btn-danger" @onclick="DeleteItem">Delete</button>
-                    <button class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
+                    <button class="btn btn-secondary" @onclick="HideDeleteModal">Cancel</button>
                 </div>
+
             </div>
         </div>
     </div>
@@ -79,40 +146,153 @@ else
 
 @code {
     private List<ItemResponseDto>? items;
+    private List<ItemResponseDto>? pagedItems;
 
-    private int deleteId;
-    private string deleteName = "";
-    private bool showConfirm = false;
+    private ItemResponseDto? selectedItem;
+
+    private bool showCreateModal = false;
+    private bool showEditModal = false;
+    private bool showDeleteModal = false;
+
+    private string sortColumn = nameof(ItemResponseDto.Name);
+    private bool sortAsc = true;
+
+    private int currentPage = 1;
+    private int pageSize = 6;
+    private int totalPages = 1;
+
+    private string searchText = "";
 
     protected override async Task OnInitializedAsync()
     {
-        items = await ItemService.GetAllAsync();
+        await ReloadItems();
     }
 
-    private void Create() => Nav.NavigateTo("/items/create");
-    private void Edit(int id) => Nav.NavigateTo($"/items/edit/{id}");
-
-    private void ConfirmDelete(int id, string name)
+    private async Task ReloadItems()
     {
-        deleteId = id;
-        deleteName = name;
-        showConfirm = true;
+        items = await ItemService.GetAllAsync();
+        ApplyFilters();
+    }
+
+    private async Task SearchChanged(ChangeEventArgs e)
+    {
+        searchText = e.Value?.ToString() ?? "";
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        if (items == null)
+            return;
+
+        IEnumerable<ItemResponseDto> query = items;
+
+        // Search filter
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            var s = searchText.ToLower();
+            query = query.Where(i =>
+                   i.Name.ToLower().Contains(s)
+                || i.SKU.ToLower().Contains(s));
+        }
+
+        // Sorting
+        query = sortColumn switch
+        {
+            nameof(ItemResponseDto.SKU) => sortAsc ? query.OrderBy(i => i.SKU) : query.OrderByDescending(i => i.SKU),
+            nameof(ItemResponseDto.Name) => sortAsc ? query.OrderBy(i => i.Name) : query.OrderByDescending(i => i.Name),
+            nameof(ItemResponseDto.UnitPrice) => sortAsc ? query.OrderBy(i => i.UnitPrice) : query.OrderByDescending(i => i.UnitPrice),
+            nameof(ItemResponseDto.OnHand) => sortAsc ? query.OrderBy(i => i.OnHand) : query.OrderByDescending(i => i.OnHand),
+            _ => query
+        };
+
+        // Pagination
+        totalPages = (int)Math.Ceiling(query.Count() / (double)pageSize);
+        currentPage = Math.Clamp(currentPage, 1, totalPages);
+
+        pagedItems = query
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private void SortBy(string column)
+    {
+        if (sortColumn == column)
+            sortAsc = !sortAsc;
+        else
+            sortColumn = column;
+
+        ApplyFilters();
+    }
+
+    private RenderFragment SortIcon(string column) => builder =>
+    {
+        if (sortColumn != column) return;
+
+        var icon = sortAsc ? "▲" : "▼";
+        builder.AddContent(0, " " + icon);
+    };
+
+    // Pagination
+    private void NextPage()
+    {
+        if (currentPage < totalPages)
+        {
+            currentPage++;
+            ApplyFilters();
+        }
+    }
+
+    private void PrevPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            ApplyFilters();
+        }
+    }
+
+    private void GoToPage(int page)
+    {
+        currentPage = page;
+        ApplyFilters();
+    }
+
+    // Modal handlers
+    private void ShowCreateModal()
+    {
+        selectedItem = null;
+        showCreateModal = true;
+    }
+
+    private void ShowEditModal(ItemResponseDto item)
+    {
+        selectedItem = item;
+        showEditModal = true;
+    }
+
+    private void ShowDeleteModal(ItemResponseDto item)
+    {
+        selectedItem = item;
+        showDeleteModal = true;
+    }
+
+    private void HideDeleteModal()
+    {
+        showDeleteModal = false;
     }
 
     private async Task DeleteItem()
     {
-        var success = await ItemService.DeleteAsync(deleteId);
+        if (selectedItem == null)
+            return;
+
+        var success = await ItemService.DeleteAsync(selectedItem.Id);
 
         if (success)
-        {
-            items = await ItemService.GetAllAsync(); // refresh
-        }
+            await ReloadItems();
 
-        showConfirm = false;
-    }
-
-    private void CancelDelete()
-    {
-        showConfirm = false;
+        showDeleteModal = false;
     }
 }

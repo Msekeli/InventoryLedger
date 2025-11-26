@@ -3,6 +3,7 @@ using Inventory.Client.Services.Items;
 using Inventory.Client.Services.Transactions;
 using Inventory.Client.Services.Inventory;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Inventory.Client.Services.Dashboard;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -19,5 +20,7 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IStockTransactionService, StockTransactionService>();
 builder.Services.AddScoped<IInventoryServiceClient, InventoryServiceClient>();
+builder.Services.AddScoped<DashboardService>();
+
 
 await builder.Build().RunAsync();

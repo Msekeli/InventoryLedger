@@ -26,6 +26,14 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Components/Items/ItemFormModal.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9JdGVtcy9JdGVtRm9ybU1vZGFsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Components/Transactions/TransactionFormModal.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9UcmFuc2FjdGlvbnMvVHJhbnNhY3Rpb25Gb3JtTW9kYWwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Pages/Index.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSW5kZXgucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
@@ -34,20 +42,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSW52ZW50b3J5U3VtbWFyeS9JbnZlbnRvcnlTdW1tYXJ5LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Pages/Items/ItemCreate.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSXRlbXMvSXRlbUNyZWF0ZS5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Pages/Items/ItemEdit.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSXRlbXMvSXRlbUVkaXQucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = 
-
 [/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Pages/Items/ItemsList.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSXRlbXMvSXRlbXNMaXN0LnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Pages/Transactions/AddTransaction.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVHJhbnNhY3Rpb25zL0FkZFRyYW5zYWN0aW9uLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/admin/Documents/CodingProjects/InventoryLedger/Inventory.Client/Pages/Transactions/TransactionsList.razor]
