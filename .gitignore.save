@@ -1,0 +1,41 @@
+  UW PICO 5.09                                                                                                  File: .gitignore                                                                                           
+         
+
+bin/
+obj/
+*.db
+*.sqlitebin/
+obj/
+*.db
+*.sqlite
+# Ignore ALL bin and obj folders across all projects
+**/bin/
+**/obj/
+
+# VS Code
+.vscode/
+
+# Visual Studio
+*.user
+*.suo
+
+# Build logs and cache
+*.cache
+*.idx
+*.log
+
+# Razor auto-generated files
+*.g.cs
+*.g.i.cs
+
+# .NET global artifacts
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Databases
+*.db
+*.sqlite
+*.mdf
+*.ldf
+

@@ -33,10 +33,9 @@ public static class InventoryDbContextSeed
         var random = new Random();
         var transactions = new List<StockTransaction>();
 
-        // Generate 30 days of realistic activity
         foreach (var item in items)
         {
-            int startingStock = random.Next(80, 150); // Each item gets a random realistic starting amount
+            int startingStock = random.Next(80, 150);
 
             // 1. Add initial stock
             transactions.Add(new StockTransaction
