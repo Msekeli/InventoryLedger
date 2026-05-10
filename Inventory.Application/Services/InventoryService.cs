@@ -1,4 +1,5 @@
 using Inventory.Domain.Entities;
+using Inventory.Domain.Enums;
 using Inventory.Application.Interfaces;
 
 namespace Inventory.Application.Services;
@@ -20,29 +21,45 @@ public class InventoryService : IInventoryService
     {
         var transactions = await _transactionRepository.GetByItemIdAsync(itemId);
 
-        return transactions.Sum(t => t.QuantityChange);
+        var stockIn = transactions
+            .Where(t =>
+                t.TransactionType == TransactionType.StockReceived ||
+                t.TransactionType == TransactionType.CustomerReturn ||
+                t.TransactionType == TransactionType.StockCountCorrection)
+            .Sum(t => t.Quantity);
+
+        var stockOut = transactions
+            .Where(t =>
+                t.TransactionType == TransactionType.Sale ||
+                t.TransactionType == TransactionType.SupplierReturn ||
+                t.TransactionType == TransactionType.Damaged ||
+                t.TransactionType == TransactionType.Expired)
+            .Sum(t => t.Quantity);
+
+        return stockIn - stockOut;
     }
 
     public async Task<decimal> GetInventoryValueAsync(int itemId)
     {
         var item = await _itemRepository.GetByIdAsync(itemId);
-        if (item == null)
+
+        if (item is null)
             return 0;
 
         var onHand = await GetOnHandQuantityAsync(itemId);
 
-        return item.UnitPrice * onHand;
+        return item.CostPrice * onHand;
     }
 
     public async Task<decimal> GetTotalInventoryValueAsync()
     {
         var items = await _itemRepository.GetAllAsync();
+
         decimal total = 0;
 
         foreach (var item in items)
         {
-            var value = await GetInventoryValueAsync(item.Id);
-            total += value;
+            total += await GetInventoryValueAsync(item.Id);
         }
 
         return total;
@@ -50,8 +67,9 @@ public class InventoryService : IInventoryService
 
     public async Task<List<Item>> GetLowStockItemsAsync()
     {
-        var items = await _itemRepository.GetAllAsync();
-        var lowStock = new List<Item>();
+        var items = await _itemRepository.GetActiveItemsAsync();
+
+        var lowStockItems = new List<Item>();
 
         foreach (var item in items)
         {
@@ -59,10 +77,35 @@ public class InventoryService : IInventoryService
 
             if (item.IsLowStock(onHand))
             {
-                lowStock.Add(item);
+                lowStockItems.Add(item);
             }
         }
 
-        return lowStock;
+        return lowStockItems;
+    }
+
+    public Task ReceiveStockAsync(int itemId, int quantity, int supplierId, int performedByUserId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task RecordDamageAsync(int itemId, int quantity, int performedByUserId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task WriteOffExpiredStockAsync(int itemId, int quantity, int performedByUserId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task AdjustStockAsync(int itemId, int quantity, int performedByUserId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task PerformStockCountAsync(int itemId, int countedQuantity, int performedByUserId)
+    {
+        throw new NotImplementedException();
     }
 }
