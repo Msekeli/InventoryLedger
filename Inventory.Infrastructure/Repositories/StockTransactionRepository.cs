@@ -14,10 +14,22 @@ public class StockTransactionRepository : IStockTransactionRepository
         _context = context;
     }
 
+    public async Task<StockTransaction?> GetByIdAsync(int id)
+    {
+        return await _context.StockTransactions
+            .FirstOrDefaultAsync(t => t.Id == id);
+    }
+
     public async Task<List<StockTransaction>> GetByItemIdAsync(int itemId)
     {
         return await _context.StockTransactions
             .Where(t => t.ItemId == itemId)
+            .ToListAsync();
+    }
+
+    public async Task<List<StockTransaction>> GetAllAsync()
+    {
+        return await _context.StockTransactions
             .ToListAsync();
     }
 

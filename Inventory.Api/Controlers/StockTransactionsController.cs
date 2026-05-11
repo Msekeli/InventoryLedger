@@ -1,6 +1,7 @@
 using Inventory.Api.Models.Transactions;
 using Inventory.Application.Interfaces;
 using Inventory.Domain.Entities;
+using Inventory.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inventory.Api.Controllers;
@@ -20,44 +21,43 @@ public class StockTransactionsController : ControllerBase
         _itemRepository = itemRepository;
     }
 
-    // GET: api/stocktransactions/1
     [HttpGet("{itemId:int}")]
     public async Task<IActionResult> GetByItem(int itemId)
     {
-        var transactions = await _transactionRepository.GetByItemIdAsync(itemId);
+        var transactions =
+            await _transactionRepository.GetByItemIdAsync(itemId);
+
         return Ok(transactions);
     }
 
-    // POST: api/stocktransactions
     [HttpPost]
-    public async Task<IActionResult> Create(StockTransactionCreateDto dto)
+    public async Task<IActionResult> Create(
+        StockTransactionCreateDto dto)
     {
-        // 1. Basic validation
         if (dto.Quantity <= 0)
-            return BadRequest(new { message = "Quantity must be > 0" });
-
-        // 2. Ensure Item exists
-        var item = await _itemRepository.GetByIdAsync(dto.ItemId);
-        if (item == null)
-            return NotFound(new { message = "Item not found." });
-
-        // 3. Validate IN/OUT type and calculate QuantityChange
-        int quantityChange = dto.Type?.ToUpper() switch
         {
-            "IN" => dto.Quantity,
-            "OUT" => -dto.Quantity,
-            _ => 0
-        };
+            return BadRequest(new
+            {
+                message = "Quantity must be greater than zero."
+            });
+        }
 
-        if (quantityChange == 0)
-            return BadRequest(new { message = "Invalid type. Use IN or OUT." });
+        var item =
+            await _itemRepository.GetByIdAsync(dto.ItemId);
 
-        // 4. Create transaction
+        if (item is null)
+        {
+            return NotFound(new
+            {
+                message = "Item not found."
+            });
+        }
+
         var transaction = new StockTransaction
         {
             ItemId = dto.ItemId,
-            QuantityChange = quantityChange,
-            Reference = dto.Remarks,
+            Quantity = dto.Quantity,
+            TransactionType = dto.TransactionType,
             Timestamp = DateTime.UtcNow
         };
 

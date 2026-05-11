@@ -11,7 +11,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 // Database
 builder.Services.AddDbContext<InventoryDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseSqlServer(connectionString));
 
 // CORS for Blazor
 builder.Services.AddCors(options =>

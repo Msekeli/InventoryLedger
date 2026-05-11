@@ -21,12 +21,27 @@ public class ItemRepository : IItemRepository
 
     public async Task<Item?> GetBySKUAsync(string sku)
     {
-        return await _context.Items.FirstOrDefaultAsync(i => i.SKU == sku);
+        return await _context.Items
+            .FirstOrDefaultAsync(i => i.SKU == sku);
     }
 
     public async Task<List<Item>> GetAllAsync()
     {
         return await _context.Items.ToListAsync();
+    }
+
+    public async Task<List<Item>> GetActiveItemsAsync()
+    {
+        return await _context.Items
+            .Where(i => i.IsActive)
+            .ToListAsync();
+    }
+
+    public async Task<List<Item>> GetLowStockItemsAsync()
+    {
+        return await _context.Items
+            .Where(i => i.IsActive)
+            .ToListAsync();
     }
 
     public async Task AddAsync(Item item)
@@ -37,12 +52,14 @@ public class ItemRepository : IItemRepository
     public Task UpdateAsync(Item item)
     {
         _context.Items.Update(item);
+
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Item item)
     {
         _context.Items.Remove(item);
+
         return Task.CompletedTask;
     }
 
