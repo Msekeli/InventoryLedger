@@ -1,110 +1,148 @@
 using Inventory.Domain.Entities;
-using Inventory.Domain.Enums;
 using Inventory.Application.Interfaces;
 
 namespace Inventory.Application.Services;
 
-public class InventoryService : IInventoryService
+public class InventoryService
+    : IInventoryService
 {
-    private readonly IItemRepository _itemRepository;
-    private readonly IStockTransactionRepository _transactionRepository;
+    private readonly
+        IItemRepository _itemRepository;
+
+    private readonly
+        IStockTransactionRepository
+        _transactionRepository;
 
     public InventoryService(
         IItemRepository itemRepository,
-        IStockTransactionRepository transactionRepository)
+        IStockTransactionRepository
+            transactionRepository)
     {
-        _itemRepository = itemRepository;
-        _transactionRepository = transactionRepository;
+        _itemRepository =
+            itemRepository;
+
+        _transactionRepository =
+            transactionRepository;
     }
 
-    public async Task<int> GetOnHandQuantityAsync(int itemId)
+    public async Task<int>
+        GetOnHandQuantityAsync(
+            int itemId)
     {
-        var transactions = await _transactionRepository.GetByItemIdAsync(itemId);
-
-        var stockIn = transactions
-            .Where(t =>
-                t.TransactionType == TransactionType.StockReceived ||
-                t.TransactionType == TransactionType.CustomerReturn ||
-                t.TransactionType == TransactionType.StockCountCorrection)
-            .Sum(t => t.Quantity);
-
-        var stockOut = transactions
-            .Where(t =>
-                t.TransactionType == TransactionType.Sale ||
-                t.TransactionType == TransactionType.SupplierReturn ||
-                t.TransactionType == TransactionType.Damaged ||
-                t.TransactionType == TransactionType.Expired)
-            .Sum(t => t.Quantity);
-
-        return stockIn - stockOut;
+        return await
+            _transactionRepository
+                .GetOnHandQuantityAsync(
+                    itemId);
     }
 
-    public async Task<decimal> GetInventoryValueAsync(int itemId)
+    public async Task<decimal>
+        GetInventoryValueAsync(
+            int itemId)
     {
-        var item = await _itemRepository.GetByIdAsync(itemId);
+        var item =
+            await _itemRepository
+                .GetByIdAsync(
+                    itemId);
 
         if (item is null)
             return 0;
 
-        var onHand = await GetOnHandQuantityAsync(itemId);
+        var onHand =
+            await GetOnHandQuantityAsync(
+                itemId);
 
-        return item.CostPrice * onHand;
+        return item.CostPrice
+            * onHand;
     }
 
-    public async Task<decimal> GetTotalInventoryValueAsync()
+    public async Task<decimal>
+        GetTotalInventoryValueAsync()
     {
-        var items = await _itemRepository.GetAllAsync();
+        var items =
+            await _itemRepository
+                .GetAllAsync();
 
         decimal total = 0;
 
-        foreach (var item in items)
+        foreach (
+            var item
+            in items)
         {
-            total += await GetInventoryValueAsync(item.Id);
+            total +=
+                await GetInventoryValueAsync(
+                    item.Id);
         }
 
         return total;
     }
 
-    public async Task<List<Item>> GetLowStockItemsAsync()
+    public async Task<List<Item>>
+        GetLowStockItemsAsync()
     {
-        var items = await _itemRepository.GetActiveItemsAsync();
+        var items =
+            await _itemRepository
+                .GetActiveItemsAsync();
 
-        var lowStockItems = new List<Item>();
+        var lowStockItems =
+            new List<Item>();
 
-        foreach (var item in items)
+        foreach (
+            var item
+            in items)
         {
-            var onHand = await GetOnHandQuantityAsync(item.Id);
+            var onHand =
+                await GetOnHandQuantityAsync(
+                    item.Id);
 
-            if (item.IsLowStock(onHand))
+            if (
+                item.IsLowStock(
+                    onHand))
             {
-                lowStockItems.Add(item);
+                lowStockItems
+                    .Add(item);
             }
         }
 
         return lowStockItems;
     }
 
-    public Task ReceiveStockAsync(int itemId, int quantity, int supplierId, int performedByUserId)
+    public Task ReceiveStockAsync(
+        int itemId,
+        int quantity,
+        int supplierId,
+        int performedByUserId)
     {
         throw new NotImplementedException();
     }
 
-    public Task RecordDamageAsync(int itemId, int quantity, int performedByUserId)
+    public Task RecordDamageAsync(
+        int itemId,
+        int quantity,
+        int performedByUserId)
     {
         throw new NotImplementedException();
     }
 
-    public Task WriteOffExpiredStockAsync(int itemId, int quantity, int performedByUserId)
+    public Task WriteOffExpiredStockAsync(
+        int itemId,
+        int quantity,
+        int performedByUserId)
     {
         throw new NotImplementedException();
     }
 
-    public Task AdjustStockAsync(int itemId, int quantity, int performedByUserId)
+    public Task AdjustStockAsync(
+        int itemId,
+        int quantity,
+        int performedByUserId)
     {
         throw new NotImplementedException();
     }
 
-    public Task PerformStockCountAsync(int itemId, int countedQuantity, int performedByUserId)
+    public Task PerformStockCountAsync(
+        int itemId,
+        int countedQuantity,
+        int performedByUserId)
     {
         throw new NotImplementedException();
     }
