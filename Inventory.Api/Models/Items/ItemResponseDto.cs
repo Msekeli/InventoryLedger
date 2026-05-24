@@ -14,6 +14,8 @@ public class ItemResponseDto
 
     public int LowStockThreshold { get; init; }
 
+    public int SupplierId { get; init; }
+
     public int OnHand { get; init; }
 
     public decimal Value => CostPrice * OnHand;

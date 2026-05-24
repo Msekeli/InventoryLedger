@@ -18,4 +18,7 @@ public class ItemCreateDto
 
     [Range(0, int.MaxValue)]
     public int LowStockThreshold { get; set; }
+
+    [Range(1, int.MaxValue)]
+    public int SupplierId { get; set; }
 }

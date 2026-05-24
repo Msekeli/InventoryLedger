@@ -39,110 +39,101 @@ public class InventoryService
         GetInventoryValueAsync(
             int itemId)
     {
+        var summary =
+            await _transactionRepository
+                .GetInventorySummaryAsync();
+
         var item =
-            await _itemRepository
-                .GetByIdAsync(
-                    itemId);
+            summary
+                .FirstOrDefault(
+                    x => x.Id == itemId);
 
         if (item is null)
             return 0;
 
-        var onHand =
-            await GetOnHandQuantityAsync(
-                itemId);
-
-        return item.CostPrice
-            * onHand;
+        return item
+            .InventoryCostValue;
     }
 
     public async Task<decimal>
         GetTotalInventoryValueAsync()
     {
-        var items =
-            await _itemRepository
-                .GetAllAsync();
+        var summary =
+            await _transactionRepository
+                .GetInventorySummaryAsync();
 
-        decimal total = 0;
-
-        foreach (
-            var item
-            in items)
-        {
-            total +=
-                await GetInventoryValueAsync(
-                    item.Id);
-        }
-
-        return total;
+        return summary
+            .Sum(
+                x => x.InventoryCostValue);
     }
 
     public async Task<List<Item>>
         GetLowStockItemsAsync()
     {
+        var lowStockRows =
+            await _transactionRepository
+                .GetLowStockItemsAsync();
+
         var items =
             await _itemRepository
                 .GetActiveItemsAsync();
 
-        var lowStockItems =
-            new List<Item>();
-
-        foreach (
-            var item
-            in items)
-        {
-            var onHand =
-                await GetOnHandQuantityAsync(
-                    item.Id);
-
-            if (
-                item.IsLowStock(
-                    onHand))
-            {
-                lowStockItems
-                    .Add(item);
-            }
-        }
-
-        return lowStockItems;
+        return items
+            .Where(
+                i => lowStockRows
+                    .Any(
+                        x => x.Id == i.Id))
+            .ToList();
     }
 
-    public Task ReceiveStockAsync(
-        int itemId,
-        int quantity,
-        int supplierId,
-        int performedByUserId)
+    public async Task
+        ReceiveStockAsync(
+            int itemId,
+            int quantity,
+            int supplierId,
+            int performedByUserId)
+    {
+        await _transactionRepository
+            .ReceiveStockAsync(
+                itemId,
+                quantity,
+                $"REC-{itemId}",
+                "Inventory service",
+                performedByUserId);
+    }
+
+    public Task
+        RecordDamageAsync(
+            int itemId,
+            int quantity,
+            int performedByUserId)
     {
         throw new NotImplementedException();
     }
 
-    public Task RecordDamageAsync(
-        int itemId,
-        int quantity,
-        int performedByUserId)
+    public Task
+        WriteOffExpiredStockAsync(
+            int itemId,
+            int quantity,
+            int performedByUserId)
     {
         throw new NotImplementedException();
     }
 
-    public Task WriteOffExpiredStockAsync(
-        int itemId,
-        int quantity,
-        int performedByUserId)
+    public Task
+        AdjustStockAsync(
+            int itemId,
+            int quantity,
+            int performedByUserId)
     {
         throw new NotImplementedException();
     }
 
-    public Task AdjustStockAsync(
-        int itemId,
-        int quantity,
-        int performedByUserId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task PerformStockCountAsync(
-        int itemId,
-        int countedQuantity,
-        int performedByUserId)
+    public Task
+        PerformStockCountAsync(
+            int itemId,
+            int countedQuantity,
+            int performedByUserId)
     {
         throw new NotImplementedException();
     }

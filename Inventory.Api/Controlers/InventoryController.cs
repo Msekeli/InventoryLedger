@@ -5,88 +5,104 @@ namespace Inventory.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class InventoryController : ControllerBase
+public class InventoryController
+    : ControllerBase
 {
-    private readonly IInventoryService _inventoryService;
-    private readonly IItemRepository _itemRepository;
+    private readonly
+        IInventoryService
+        _inventoryService;
+
+    private readonly
+        IStockTransactionRepository
+        _transactionRepository;
 
     public InventoryController(
-        IInventoryService inventoryService,
-        IItemRepository itemRepository)
+        IInventoryService
+            inventoryService,
+        IStockTransactionRepository
+            transactionRepository)
     {
-        _inventoryService = inventoryService;
-        _itemRepository = itemRepository;
+        _inventoryService =
+            inventoryService;
+
+        _transactionRepository =
+            transactionRepository;
     }
 
     [HttpGet("summary")]
-    public async Task<IActionResult> GetSummary(
-        [FromQuery] bool lowStockOnly = false)
+    public async Task<IActionResult>
+        GetSummary(
+            [FromQuery]
+            bool lowStockOnly = false)
     {
-        var items = await _itemRepository.GetActiveItemsAsync();
+        var summary =
+            await _transactionRepository
+                .GetInventorySummaryAsync();
 
-        var results = new List<object>();
-
-        decimal totalValue = 0;
-
-        foreach (var item in items)
+        if (lowStockOnly)
         {
-            int onHand =
-                await _inventoryService.GetOnHandQuantityAsync(item.Id);
+            var lowStock =
+                await _transactionRepository
+                    .GetLowStockItemsAsync();
 
-            decimal value = item.CostPrice * onHand;
-
-            bool isLow = item.IsLowStock(onHand);
-
-            if (lowStockOnly && !isLow)
-                continue;
-
-            results.Add(new
-            {
-                item.Id,
-                item.SKU,
-                item.Name,
-                item.CostPrice,
-                item.SellingPrice,
-                OnHand = onHand,
-                Value = value,
-                item.LowStockThreshold,
-                IsLowStock = isLow
-            });
-
-            totalValue += value;
+            summary =
+                summary
+                    .Where(
+                        x => lowStock
+                            .Any(
+                                y => y.Id == x.Id))
+                    .ToList();
         }
 
-        return Ok(new
-        {
-            TotalInventoryValue = totalValue,
-            Items = results
-        });
+        return Ok(
+            new
+            {
+                TotalInventoryValue =
+                    summary.Sum(
+                        x => x.InventoryCostValue),
+
+                Items =
+                    summary
+            });
     }
 
     [HttpGet("{itemId:int}/stock")]
-    public async Task<IActionResult> GetStock(int itemId)
+    public async Task<IActionResult>
+        GetStock(
+            int itemId)
     {
         var stock =
-            await _inventoryService.GetOnHandQuantityAsync(itemId);
+            await _inventoryService
+                .GetOnHandQuantityAsync(
+                    itemId);
 
-        return Ok(stock);
+        return Ok(
+            stock);
     }
 
     [HttpGet("{itemId:int}/value")]
-    public async Task<IActionResult> GetValue(int itemId)
+    public async Task<IActionResult>
+        GetValue(
+            int itemId)
     {
         var value =
-            await _inventoryService.GetInventoryValueAsync(itemId);
+            await _inventoryService
+                .GetInventoryValueAsync(
+                    itemId);
 
-        return Ok(value);
+        return Ok(
+            value);
     }
 
     [HttpGet("low-stock")]
-    public async Task<IActionResult> GetLowStock()
+    public async Task<IActionResult>
+        GetLowStock()
     {
         var items =
-            await _inventoryService.GetLowStockItemsAsync();
+            await _transactionRepository
+                .GetLowStockItemsAsync();
 
-        return Ok(items);
+        return Ok(
+            items);
     }
 }

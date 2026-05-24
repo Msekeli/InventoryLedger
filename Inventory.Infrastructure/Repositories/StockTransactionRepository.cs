@@ -1,4 +1,3 @@
-using System.Data;
 using Inventory.Application.Interfaces;
 using Inventory.Application.Models;
 using Inventory.Domain.Entities;
@@ -19,22 +18,31 @@ public class StockTransactionRepository
         _context = context;
     }
 
-    public async Task<StockTransaction?> GetByIdAsync(int id)
+    public async Task<StockTransaction?> GetByIdAsync(
+        int id)
     {
-        return await _context.StockTransactions
-            .FirstOrDefaultAsync(t => t.Id == id);
+        return await _context
+            .StockTransactions
+            .FirstOrDefaultAsync(
+                t => t.Id == id);
     }
 
-    public async Task<List<StockTransaction>> GetByItemIdAsync(int itemId)
+    public async Task<List<StockTransaction>>
+        GetByItemIdAsync(
+            int itemId)
     {
-        return await _context.StockTransactions
-            .Where(t => t.ItemId == itemId)
+        return await _context
+            .StockTransactions
+            .Where(
+                t => t.ItemId == itemId)
             .ToListAsync();
     }
 
-    public async Task<List<StockTransaction>> GetAllAsync()
+    public async Task<List<StockTransaction>>
+        GetAllAsync()
     {
-        return await _context.StockTransactions
+        return await _context
+            .StockTransactions
             .ToListAsync();
     }
 
@@ -45,18 +53,33 @@ public class StockTransactionRepository
         string notes,
         int performedByUserId)
     {
-        await _context.Database.ExecuteSqlRawAsync(
-            @"EXEC ReceiveStock
-                @ItemId,
-                @Quantity,
-                @ReferenceNumber,
-                @Notes,
-                @PerformedByUserId",
-            new SqlParameter("@ItemId", itemId),
-            new SqlParameter("@Quantity", quantity),
-            new SqlParameter("@ReferenceNumber", referenceNumber),
-            new SqlParameter("@Notes", notes),
-            new SqlParameter("@PerformedByUserId", performedByUserId));
+        await _context.Database
+            .ExecuteSqlRawAsync(
+                @"EXEC ReceiveStock
+                    @ItemId,
+                    @Quantity,
+                    @ReferenceNumber,
+                    @Notes,
+                    @PerformedByUserId",
+                new SqlParameter(
+                    "@ItemId",
+                    itemId),
+
+                new SqlParameter(
+                    "@Quantity",
+                    quantity),
+
+                new SqlParameter(
+                    "@ReferenceNumber",
+                    referenceNumber),
+
+                new SqlParameter(
+                    "@Notes",
+                    notes),
+
+                new SqlParameter(
+                    "@PerformedByUserId",
+                    performedByUserId));
     }
 
     public async Task ProcessSaleAsync(
@@ -66,59 +89,57 @@ public class StockTransactionRepository
         string notes,
         int performedByUserId)
     {
-        await _context.Database.ExecuteSqlRawAsync(
-            @"EXEC ProcessSale
-                @ItemId,
-                @Quantity,
-                @ReferenceNumber,
-                @Notes,
-                @PerformedByUserId",
-            new SqlParameter("@ItemId", itemId),
-            new SqlParameter("@Quantity", quantity),
-            new SqlParameter("@ReferenceNumber", referenceNumber),
-            new SqlParameter("@Notes", notes),
-            new SqlParameter("@PerformedByUserId", performedByUserId));
+        await _context.Database
+            .ExecuteSqlRawAsync(
+                @"EXEC ProcessSale
+                    @ItemId,
+                    @Quantity,
+                    @ReferenceNumber,
+                    @Notes,
+                    @PerformedByUserId",
+                new SqlParameter(
+                    "@ItemId",
+                    itemId),
+
+                new SqlParameter(
+                    "@Quantity",
+                    quantity),
+
+                new SqlParameter(
+                    "@ReferenceNumber",
+                    referenceNumber),
+
+                new SqlParameter(
+                    "@Notes",
+                    notes),
+
+                new SqlParameter(
+                    "@PerformedByUserId",
+                    performedByUserId));
     }
 
-    public async Task<int> GetOnHandQuantityAsync(int itemId)
-    {
-        using var connection =
-            _context.Database.GetDbConnection();
+public async Task<int>
+    GetOnHandQuantityAsync(
+        int itemId)
+{
+    var results =
+        await _context.Database
+            .SqlQueryRaw<int>(
+                "EXEC GetOnHandQuantity @ItemId",
+                new SqlParameter(
+                    "@ItemId",
+                    itemId))
+            .ToListAsync();
 
-        await connection.OpenAsync();
-
-        using var command =
-            connection.CreateCommand();
-
-        command.CommandText =
-            "GetOnHandQuantity";
-
-        command.CommandType =
-            CommandType.StoredProcedure;
-
-        var parameter =
-            command.CreateParameter();
-
-        parameter.ParameterName =
-            "@ItemId";
-
-        parameter.Value =
-            itemId;
-
-        command.Parameters.Add(parameter);
-
-        var result =
-            await command.ExecuteScalarAsync();
-
-        return Convert.ToInt32(result);
-    }
+    return results.FirstOrDefault();
+}
 
     public async Task<List<InventorySummaryRow>>
         GetInventorySummaryAsync()
     {
         return await _context.Database
-            .SqlQuery<InventorySummaryRow>(
-                $"EXEC GetInventorySummary")
+            .SqlQueryRaw<InventorySummaryRow>(
+                "EXEC GetInventorySummary")
             .ToListAsync();
     }
 
@@ -126,13 +147,15 @@ public class StockTransactionRepository
         GetLowStockItemsAsync()
     {
         return await _context.Database
-            .SqlQuery<LowStockItemRow>(
-                $"EXEC GetLowStockItems")
+            .SqlQueryRaw<LowStockItemRow>(
+                "EXEC GetLowStockItems")
             .ToListAsync();
     }
 
-    public async Task<bool> SaveChangesAsync()
+    public async Task<bool>
+        SaveChangesAsync()
     {
-        return await _context.SaveChangesAsync() > 0;
+        return await _context
+            .SaveChangesAsync() > 0;
     }
 }
