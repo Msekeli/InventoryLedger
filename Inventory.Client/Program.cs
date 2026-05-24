@@ -2,25 +2,31 @@ using Inventory.Client;
 using Inventory.Client.Services.Items;
 using Inventory.Client.Services.Transactions;
 using Inventory.Client.Services.Inventory;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Inventory.Client.Services.Dashboard;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Radzen;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-// Register the App component (required)
+// Root app
 builder.RootComponents.Add<App>("#app");
 
-// Register HttpClient (required)
+// HttpClient
 builder.Services.AddScoped(sp => new HttpClient
 {
     BaseAddress = new Uri("http://localhost:5222/")
 });
 
-// Register your custom services
+// Existing services
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IStockTransactionService, StockTransactionService>();
 builder.Services.AddScoped<IInventoryServiceClient, InventoryServiceClient>();
 builder.Services.AddScoped<DashboardService>();
 
+// Radzen services
+builder.Services.AddScoped<DialogService>();
+builder.Services.AddScoped<TooltipService>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<ContextMenuService>();
 
 await builder.Build().RunAsync();
