@@ -1,75 +1,48 @@
 ﻿@inherits LayoutComponentBase
 
-<RadzenLayout Style="grid-template-columns: 260px auto; height: 100vh;">
+<div class="app-shell">
 
-    <!-- LEFT SIDEBAR -->
-    <RadzenSidebar Style="background:#ffffff; border-right:1px solid #e5e7eb;">
+    <!-- SIDEBAR -->
+    <aside class="app-sidebar">
+        <RadzenPanelMenu Style="border:none;">
+            <RadzenPanelMenuItem Text="Dashboard" Icon="dashboard" Path="/" />
+            <RadzenPanelMenuItem Text="Items" Icon="inventory_2" Path="/items" />
+            <RadzenPanelMenuItem Text="Transactions" Icon="receipt_long" Path="/transactions" />
+            <RadzenPanelMenuItem Text="Low Stock" Icon="warning" Path="/low-stock" />
+            <RadzenPanelMenuItem Text="Suppliers" Icon="local_shipping" Path="/suppliers" />
+            <RadzenPanelMenuItem Text="Logout" Icon="logout" Path="/login" />
+        </RadzenPanelMenu>
+    </aside>
 
-        <div class="p-4 border-bottom">
-            <h4 class="fw-bold m-0">Spaza Stock Manager</h4>
-            <small class="text-muted">Inventory ERP</small>
+    <!-- TOP HEADER -->
+    <header class="app-header">
+
+        <!-- LEFT BRAND -->
+        <div class="header-brand">
+            <div>
+                <h4>Spaza Stock Manager</h4>
+                <small>Inventory ERP</small>
+            </div>
         </div>
 
-        <RadzenPanelMenu Style="border:none; padding-top:1rem;">
+        <!-- RIGHT USER -->
+        <div class="top-header-user">
+            <RadzenBadge Text="Owner"
+                         Shade="Shade.Light"
+                         Variant="Variant.Flat" />
 
-            <RadzenPanelMenuItem Text="Dashboard"
-                                 Icon="dashboard"
-                                 Path="/" />
+            <span class="fw-semibold">Demo User</span>
 
-            <RadzenPanelMenuItem Text="Items"
-                                 Icon="inventory_2"
-                                 Path="/items" />
+            <RadzenButton Text="Logout"
+                          Icon="logout"
+                          ButtonStyle="ButtonStyle.Light" />
+        </div>
 
-            <RadzenPanelMenuItem Text="Transactions"
-                                 Icon="receipt_long"
-                                 Path="/transactions" />
+    </header>
 
-            <RadzenPanelMenuItem Text="Low Stock"
-                                 Icon="warning"
-                                 Path="/low-stock" />
+    <!-- MAIN CONTENT -->
+    <main class="app-content">
+        @Body
+    </main>
 
-            <RadzenPanelMenuItem Text="Suppliers"
-                                 Icon="local_shipping"
-                                 Path="/suppliers" />
-
-            <RadzenPanelMenuItem Text="Logout"
-                                 Icon="logout"
-                                 Path="/login" />
-
-        </RadzenPanelMenu>
-    </RadzenSidebar>
-
-    <!-- RIGHT CONTENT -->
-    <RadzenBody Style="background:#f5f6fa;">
-
-        <!-- TOP HEADER -->
-        <RadzenHeader Style="background:#ffffff; border-bottom:1px solid #e5e7eb; padding:0 2rem; height:70px;">
-
-            <div class="d-flex justify-content-between align-items-center h-100">
-
-                <div>
-                    <h5 class="m-0 fw-semibold">Spaza Stock Manager</h5>
-                </div>
-
-                <div class="d-flex align-items-center gap-3">
-                    <RadzenBadge Text="Owner"
-                                 Shade="Shade.Light"
-                                 Variant="Variant.Flat" />
-
-                    <span class="fw-semibold text-dark">Demo User</span>
-
-                    <RadzenButton Text="Logout"
-                                  Icon="logout"
-                                  ButtonStyle="ButtonStyle.Light" />
-                </div>
-
-            </div>
-        </RadzenHeader>
-
-        <!-- PAGE CONTENT -->
-        <main class="p-4">
-            @Body
-        </main>
-
-    </RadzenBody>
-</RadzenLayout>
+</div>
