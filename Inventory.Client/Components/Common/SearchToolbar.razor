@@ -1,0 +1,46 @@
+<div class="search-toolbar">
+
+    <div class="search-left">
+        <RadzenTextBox
+            @bind-Value="SearchText"
+            Placeholder="@Placeholder"
+            Style="width:300px;"
+            Change="@OnSearchChanged" />
+
+        @if (Filters is not null)
+        {
+            @Filters
+        }
+    </div>
+
+    @if (Actions is not null)
+    {
+        <div class="search-actions">
+            @Actions
+        </div>
+    }
+
+</div>
+
+@code {
+    [Parameter]
+    public string SearchText { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Placeholder { get; set; } = "Search...";
+
+    [Parameter]
+    public EventCallback<string> SearchTextChanged { get; set; }
+
+    [Parameter]
+    public RenderFragment? Filters { get; set; }
+
+    [Parameter]
+    public RenderFragment? Actions { get; set; }
+
+    private async Task OnSearchChanged(object value)
+    {
+        SearchText = value?.ToString() ?? string.Empty;
+        await SearchTextChanged.InvokeAsync(SearchText);
+    }
+}

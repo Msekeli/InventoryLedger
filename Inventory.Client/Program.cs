@@ -5,6 +5,7 @@ using Inventory.Client.Services.Inventory;
 using Inventory.Client.Services.Dashboard;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Radzen;
+using Inventory.Client.Services.Auth;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -28,5 +29,6 @@ builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<ContextMenuService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 await builder.Build().RunAsync();

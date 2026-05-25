@@ -1,0 +1,46 @@
+<RadzenDialog Style="width:420px;">
+
+    <div class="confirm-dialog">
+
+        <h3>@Title</h3>
+
+        <p>@Message</p>
+
+        <div class="confirm-actions">
+            <RadzenButton Text="Cancel"
+                          ButtonStyle="ButtonStyle.Light"
+                          Click="@Cancel" />
+
+            <RadzenButton Text="Confirm"
+                          ButtonStyle="ButtonStyle.Danger"
+                          Click="@Confirm" />
+        </div>
+
+    </div>
+
+</RadzenDialog>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "Confirm Action";
+
+    [Parameter]
+    public string Message { get; set; } =
+        "Are you sure you want to continue?";
+
+    [Parameter]
+    public EventCallback OnConfirm { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    private async Task Confirm()
+    {
+        await OnConfirm.InvokeAsync();
+    }
+
+    private async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+    }
+}
