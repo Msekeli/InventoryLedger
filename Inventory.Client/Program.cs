@@ -29,6 +29,6 @@ builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<ContextMenuService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSingleton<IAuthService, AuthService>();
 
 await builder.Build().RunAsync();

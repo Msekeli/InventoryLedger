@@ -1,144 +1,21 @@
 @page "/"
-@inject Inventory.Client.Services.Dashboard.DashboardService Dashboard
+@using Inventory.Client.Services.Auth
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
 
-
-<h2 class="fw-bold text-white mb-4">Dashboard</h2>
-
-@if (loading)
-{
-    <p class="text-light">Loading dashboard...</p>
-}
-else
-{
-    <!-- WELCOME CARD -->
-    <div class="card bg-dark border-0 shadow-sm text-light p-4 mb-4">
-        <h4 class="fw-bold text-warning">Welcome back, User 👋</h4>
-        <p class="text-secondary mb-0">Your live inventory overview is ready.</p>
-    </div>
-
-    <!-- METRIC CARDS -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-3">
-            <div class="card bg-dark text-light border-0 shadow p-3">
-                <h6 class="text-secondary">Total Items</h6>
-                <h3 class="fw-bold text-warning">@totalItems</h3>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card bg-dark text-light border-0 shadow p-3">
-                <h6 class="text-secondary">Low Stock</h6>
-                <h3 class="fw-bold text-danger">@lowStockCount</h3>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card bg-dark text-light border-0 shadow p-3">
-                <h6 class="text-secondary">Recent Transactions</h6>
-                <h3 class="fw-bold text-info">@recentTransactions.Count</h3>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card bg-dark text-light border-0 shadow p-3">
-                <h6 class="text-secondary">Inventory Value</h6>
-                <h3 class="fw-bold text-success">R @totalValue</h3>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4">
-
-        <!-- LOW STOCK TABLE -->
-        <div class="col-md-6">
-            <div class="card bg-dark border-0 shadow text-light p-3">
-                <h5 class="fw-bold text-warning mb-3">Low Stock Items</h5>
-
-                @if (lowStock.Any())
-                {
-                    <table class="table table-dark table-hover table-sm mb-0">
-                        <thead>
-                            <tr class="text-secondary">
-                                <th>Item</th>
-                                <th>Qty</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var i in lowStock)
-                            {
-                                <tr>
-                                    <td>@i.Name</td>
-                                    <td class="text-danger fw-bold">@i.OnHand</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <p class="text-secondary mb-0">All stock levels are healthy 🎉</p>
-                }
-            </div>
-        </div>
-
-        <!-- RECENT TRANSACTIONS -->
-        <div class="col-md-6">
-            <div class="card bg-dark border-0 shadow text-light p-3">
-                <h5 class="fw-bold text-warning mb-3">Recent Transactions</h5>
-
-                @if (recentTransactions.Any())
-                {
-                    <ul class="list-group list-group-flush">
-                        @foreach (var tx in recentTransactions)
-                        {
-                            <li class="list-group-item bg-dark text-light d-flex justify-content-between">
-                                <span>
-                                    @tx.Reference  
-                                    <small class="text-secondary">
-                                        (@tx.Timestamp.ToLocalTime().ToString("g"))
-                                    </small>
-                                </span>
-
-                                <strong class="@(tx.IsIncrease ? "text-success" : "text-danger")">
-                                    @(tx.QuantityChange > 0 ? "+" : "")@tx.QuantityChange
-                                </strong>
-                            </li>
-                        }
-                    </ul>
-                }
-                else
-                {
-                    <p class="text-secondary mb-0">No recent transactions.</p>
-                }
-            </div>
-        </div>
-
-    </div>
-}
+<LoadingSpinner Text="Loading workspace..." />
 
 @code {
-    bool loading = true;
-
-    int totalItems;
-    int lowStockCount;
-    decimal totalValue;
-
-    List<InventoryItemDto> lowStock = new();
-    List<StockTransactionDto> recentTransactions = new();
-
     protected override async Task OnInitializedAsync()
     {
-        loading = true;
+        var user = await AuthService.GetCurrentUserAsync();
 
-        var items = await Dashboard.GetAllItemsAsync();
-        var summary = await Dashboard.GetSummaryAsync();
-        lowStock = await Dashboard.GetLowStockAsync();
-        recentTransactions = await Dashboard.GetRecentTransactionsAsync();
+        if (user is null)
+        {
+            Navigation.NavigateTo("/login", true);
+            return;
+        }
 
-        totalItems = items.Count;
-        lowStockCount = lowStock.Count;
-        totalValue = summary?.TotalInventoryValue ?? 0;
-
-        loading = false;
+        Navigation.NavigateTo("/dashboard", true);
     }
 }

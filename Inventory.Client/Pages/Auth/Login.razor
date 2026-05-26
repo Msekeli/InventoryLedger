@@ -1,4 +1,5 @@
 @page "/login"
+@layout AuthLayout
 @using Inventory.Client.Models.Auth
 @using Inventory.Client.Services.Auth
 @inject IAuthService AuthService
@@ -71,6 +72,6 @@
             return;
         }
 
-        Navigation.NavigateTo("/");
+       Navigation.NavigateTo("/dashboard");
     }
 }
