@@ -1,16 +1,20 @@
-<div class="loading-container">
+<div class="loading-wrapper">
+
     <RadzenProgressBarCircular
         Mode="ProgressBarMode.Indeterminate"
-        Size="ProgressBarCircularSize.Large"
-        ShowValue="false" />
+        Diameter="@Size" />
 
     @if (!string.IsNullOrWhiteSpace(Text))
     {
         <p class="loading-text">@Text</p>
     }
+
 </div>
 
 @code {
     [Parameter]
-    public string Text { get; set; } = "Loading...";
+    public string? Text { get; set; } = "Loading...";
+
+    [Parameter]
+    public int Size { get; set; } = 60;
 }

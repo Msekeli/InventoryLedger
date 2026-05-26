@@ -1,16 +1,44 @@
 ﻿@inherits LayoutComponentBase
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@using Inventory.Client.Models.Auth
+@using Inventory.Client.Services.Auth
 
 <div class="app-shell">
 
     <!-- SIDEBAR -->
     <aside class="app-sidebar">
         <RadzenPanelMenu Style="border:none;">
-            <RadzenPanelMenuItem Text="Dashboard" Icon="dashboard" Path="/" />
-            <RadzenPanelMenuItem Text="Items" Icon="inventory_2" Path="/items" />
-            <RadzenPanelMenuItem Text="Transactions" Icon="receipt_long" Path="/transactions" />
-            <RadzenPanelMenuItem Text="Low Stock" Icon="warning" Path="/low-stock" />
-            <RadzenPanelMenuItem Text="Suppliers" Icon="local_shipping" Path="/suppliers" />
-            <RadzenPanelMenuItem Text="Logout" Icon="logout" Path="/login" />
+
+            <RadzenPanelMenuItem Text="Dashboard"
+                                 Icon="dashboard"
+                                 Path="/" />
+
+            @if (IsOwner || IsStockClerk)
+            {
+                <RadzenPanelMenuItem Text="Items"
+                                     Icon="inventory_2"
+                                     Path="/items" />
+            }
+
+            @if (IsOwner || IsStockClerk)
+            {
+                <RadzenPanelMenuItem Text="Transactions"
+                                     Icon="receipt_long"
+                                     Path="/transactions" />
+            }
+
+            <RadzenPanelMenuItem Text="Low Stock"
+                                 Icon="warning"
+                                 Path="/low-stock" />
+
+            @if (IsOwner)
+            {
+                <RadzenPanelMenuItem Text="Suppliers"
+                                     Icon="local_shipping"
+                                     Path="/suppliers" />
+            }
+
         </RadzenPanelMenu>
     </aside>
 
@@ -27,15 +55,18 @@
 
         <!-- RIGHT USER -->
         <div class="top-header-user">
-            <RadzenBadge Text="Owner"
+
+            <RadzenBadge Text="@CurrentRole"
                          Shade="Shade.Light"
                          Variant="Variant.Flat" />
 
-            <span class="fw-semibold">Demo User</span>
+            <span class="fw-semibold">@CurrentUserName</span>
 
             <RadzenButton Text="Logout"
                           Icon="logout"
-                          ButtonStyle="ButtonStyle.Light" />
+                          ButtonStyle="ButtonStyle.Light"
+                          Click="Logout" />
+
         </div>
 
     </header>
@@ -46,3 +77,35 @@
     </main>
 
 </div>
+
+@code {
+    private AppUser? CurrentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        CurrentUser = await AuthService.GetCurrentUserAsync();
+    }
+
+    private bool IsOwner =>
+        CurrentUser?.RoleType == RoleType.Owner;
+
+    private bool IsCashier =>
+        CurrentUser?.RoleType == RoleType.Cashier;
+
+    private bool IsStockClerk =>
+        CurrentUser?.RoleType == RoleType.StockClerk;
+
+    private string CurrentUserName =>
+        CurrentUser is null
+            ? "Guest"
+            : $"{CurrentUser.FirstName} {CurrentUser.LastName}";
+
+    private string CurrentRole =>
+        CurrentUser?.RoleType.ToString() ?? "Guest";
+
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/login", true);
+    }
+}
