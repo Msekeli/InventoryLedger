@@ -1,0 +1,157 @@
+@page "/suppliers"
+
+@using Inventory.Client.Models.Suppliers
+@using Inventory.Client.Services.Suppliers
+@inject ISupplierService SupplierService
+
+<div class="container mt-4">
+	<h3>Suppliers</h3>
+
+	<div class="card mb-3">
+		<div class="card-body">
+			<div class="row g-2 align-items-center">
+				<div class="col-md-6">
+					<input class="form-control" placeholder="Search suppliers by name, code or contact" @bind="search" />
+				</div>
+				<div class="col-md-3">
+					<button class="btn btn-primary w-100" @onclick="AddSupplier">Add Supplier</button>
+				</div>
+				<div class="col-md-3">
+					<button class="btn btn-outline-secondary w-100" @onclick="Reload">Refresh</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@if (showAddForm && createModel != null)
+	{
+		<div class="card mb-3">
+			<div class="card-body">
+				<h5>Add Supplier</h5>
+
+				<div class="row g-2">
+					<div class="col-md-4">
+						<label class="form-label">Supplier Code</label>
+						<input class="form-control" @bind="createModel.SupplierCode" />
+					</div>
+					<div class="col-md-8">
+						<label class="form-label">Name</label>
+						<input class="form-control" @bind="createModel.Name" />
+					</div>
+					<div class="col-md-4">
+						<label class="form-label">Contact Person</label>
+						<input class="form-control" @bind="createModel.ContactPerson" />
+					</div>
+					<div class="col-md-4">
+						<label class="form-label">Phone</label>
+						<input class="form-control" @bind="createModel.PhoneNumber" />
+					</div>
+					<div class="col-md-4">
+						<label class="form-label">Email</label>
+						<input class="form-control" @bind="createModel.EmailAddress" />
+					</div>
+
+					<div class="col-12 mt-2 d-flex gap-2">
+						<button class="btn btn-success" @onclick="SubmitCreate">Create</button>
+						<button class="btn btn-outline-secondary" @onclick="(()=> showAddForm = false)">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+
+	<div class="card">
+		<div class="card-body p-0">
+			<div class="table-responsive">
+				<table class="table table-hover mb-0">
+					<thead class="table-light">
+						<tr>
+							<th>Name</th>
+							<th>Code</th>
+							<th>Contact</th>
+							<th>Phone</th>
+							<th>Email</th>
+							<th style="width:140px">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						@if (suppliers == null)
+						{
+							<tr>
+								<td colspan="6" class="text-center py-4 text-muted">Loading...</td>
+							</tr>
+						}
+						else if (!suppliers.Any())
+						{
+							<tr>
+								<td colspan="6" class="text-center py-4 text-muted">No suppliers found.</td>
+							</tr>
+						}
+						else
+						{
+							foreach (var s in suppliers.Where(s => string.IsNullOrWhiteSpace(search) || s.Name.Contains(search, StringComparison.OrdinalIgnoreCase) || s.SupplierCode.Contains(search, StringComparison.OrdinalIgnoreCase)))
+							{
+								<tr>
+									<td>@s.Name</td>
+									<td>@s.SupplierCode</td>
+									<td>@s.ContactPerson</td>
+									<td>@s.PhoneNumber</td>
+									<td>@s.EmailAddress</td>
+									<td>
+										<div class="d-flex gap-2">
+											<button class="btn btn-sm btn-outline-primary">View</button>
+											<button class="btn btn-sm btn-outline-secondary">Edit</button>
+										</div>
+									</td>
+								</tr>
+							}
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+	private List<SupplierDto>? suppliers;
+	private string search = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Reload();
+	}
+
+	private async Task Reload()
+	{
+		suppliers = await SupplierService.GetAllAsync();
+		StateHasChanged();
+	}
+
+	private void AddSupplier()
+	{
+		showAddForm = true;
+		createModel = new SupplierCreateDto();
+	}
+
+	private bool showAddForm = false;
+	private SupplierCreateDto? createModel;
+
+	private async Task SubmitCreate()
+	{
+		if (createModel == null)
+			return;
+
+		var ok = await SupplierService.CreateAsync(createModel);
+		if (ok)
+		{
+			showAddForm = false;
+			await Reload();
+		}
+		else
+		{
+			// TODO: show error
+		}
+	}
+}
+

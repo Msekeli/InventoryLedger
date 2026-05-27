@@ -1,6 +1,8 @@
 using Inventory.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Inventory.Api.Models;
+using Inventory.Domain.Entities;
 
 namespace Inventory.Api.Controllers;
 
@@ -38,5 +40,27 @@ public class SuppliersController
                 .ToListAsync();
 
         return Ok(suppliers);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateSupplierRequest request)
+    {
+        if (request is null)
+            return BadRequest();
+
+        var supplier = new Supplier
+        {
+            SupplierCode = request.SupplierCode,
+            Name = request.Name,
+            ContactPerson = request.ContactPerson,
+            PhoneNumber = request.PhoneNumber,
+            EmailAddress = request.EmailAddress,
+            IsActive = true
+        };
+
+        _db.Suppliers.Add(supplier);
+        await _db.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetAll), new { id = supplier.Id }, new { supplier.Id });
     }
 }

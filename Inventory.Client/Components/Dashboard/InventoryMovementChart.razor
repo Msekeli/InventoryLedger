@@ -16,7 +16,7 @@ else if (!_transactions.Any())
 else
 {
     <RadzenCard Variant="Variant.Flat"
-                class="shadow-sm border-0 h-100">
+                class="shadow-sm border-0">
 
         <div class="d-flex justify-content-between align-items-center mb-4">
 
@@ -27,39 +27,86 @@ else
                 </h5>
 
                 <small class="text-muted">
-                    Stock movement over recent activity
+                    Operational stock movement summary
                 </small>
 
             </div>
 
-            <RadzenIcon Icon="show_chart"
+            <RadzenIcon Icon="donut_large"
                         class="fs-2 text-primary" />
 
         </div>
 
-        <RadzenChart Style="height: 350px;">
+        <div class="row align-items-center">
 
-            <!-- STOCK IN -->
+            <!-- CHART -->
 
-            <RadzenColumnSeries Data="@_stockInData"
-                                CategoryProperty="Label"
-                                ValueProperty="Value"
-                                Title="Stock In" />
+            <div class="col-12 col-lg-7">
 
-            <!-- STOCK OUT -->
+                <RadzenChart Style="height: 220px;">
 
-            <RadzenColumnSeries Data="@_stockOutData"
-                                CategoryProperty="Label"
-                                ValueProperty="Value"
-                                Title="Stock Out" />
+                    <RadzenPieSeries Data="@_movementData"
+                                     Title="Movement"
+                                     CategoryProperty="Label"
+                                     ValueProperty="Value">
 
-            <RadzenCategoryAxis Padding="20" />
+                        <RadzenSeriesDataLabels Visible="true" />
 
-            <RadzenValueAxis />
+                    </RadzenPieSeries>
 
-            <RadzenLegend Position="LegendPosition.Bottom" />
+                    <RadzenLegend Position="LegendPosition.Right" />
 
-        </RadzenChart>
+                </RadzenChart>
+
+            </div>
+
+            <!-- SUMMARY -->
+
+            <div class="col-12 col-lg-5">
+
+                <div class="d-flex flex-column gap-3">
+
+                    <div class="p-3 rounded bg-light">
+
+                        <div class="text-muted small mb-1">
+                            Stock Received
+                        </div>
+
+                        <div class="fw-bold fs-4 text-success">
+                            @_stockInUnits units
+                        </div>
+
+                    </div>
+
+                    <div class="p-3 rounded bg-light">
+
+                        <div class="text-muted small mb-1">
+                            Stock Sold
+                        </div>
+
+                        <div class="fw-bold fs-4 text-danger">
+                            @_stockOutUnits units
+                        </div>
+
+                    </div>
+
+                    <div class="p-3 rounded bg-light">
+
+                        <div class="text-muted small mb-1">
+                            Total Movements
+                        </div>
+
+                        <div class="fw-bold fs-4 text-primary">
+                            @_transactions.Count
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </RadzenCard>
 }
@@ -70,9 +117,11 @@ else
 
     private List<StockTransactionDto> _transactions = new();
 
-    private List<MovementChartData> _stockInData = new();
+    private List<MovementData> _movementData = new();
 
-    private List<MovementChartData> _stockOutData = new();
+    private int _stockInUnits;
+
+    private int _stockOutUnits;
 
     protected override async Task OnInitializedAsync()
     {
@@ -80,47 +129,40 @@ else
 
         _transactions =
             await DashboardService
-                .GetRecentTransactionsAsync();
+                .GetRecentTransactionsAsync(30);
 
-        var grouped =
+        _stockInUnits =
             _transactions
-                .GroupBy(t =>
-                    t.Timestamp
-                        .ToLocalTime()
-                        .ToString("dd MMM"))
-                .OrderBy(g => g.Key)
-                .Take(7)
-                .ToList();
+                .Where(x => x.IsIncrease)
+                .Sum(x => x.Quantity);
 
-        _stockInData =
-            grouped
-                .Select(g => new MovementChartData
-                {
-                    Label = g.Key,
-                    Value = g
-                        .Where(x => x.IsIncrease)
-                        .Sum(x => x.Quantity)
-                })
-                .ToList();
+        _stockOutUnits =
+            _transactions
+                .Where(x => x.IsDecrease)
+                .Sum(x => x.Quantity);
 
-        _stockOutData =
-            grouped
-                .Select(g => new MovementChartData
-                {
-                    Label = g.Key,
-                    Value = g
-                        .Where(x => x.IsDecrease)
-                        .Sum(x => x.Quantity)
-                })
-                .ToList();
+        _movementData =
+        [
+            new MovementData
+            {
+                Label = "Stock In",
+                Value = _stockInUnits
+            },
+
+            new MovementData
+            {
+                Label = "Stock Out",
+                Value = _stockOutUnits
+            }
+        ];
 
         _isLoading = false;
     }
 
-    public class MovementChartData
+    public class MovementData
     {
         public string Label { get; set; } = string.Empty;
 
-        public int Value { get; set; }
+        public double Value { get; set; }
     }
 }

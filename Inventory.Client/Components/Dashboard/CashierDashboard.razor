@@ -1,2 +1,65 @@
-<h4>Welcome to the Cashier Dashboard</h4>
-<p>This is your transactions and inventory lookup workspace.</p>
+@using Inventory.Client.Components.Common
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h3 class="mb-1">
+            Cashier Dashboard
+        </h3>
+
+        <div class="text-muted">
+            Sales and checkout operations
+        </div>
+    </div>
+
+</div>
+
+<div class="row g-3 mb-4">
+
+    <div class="col-md-4">
+
+        <StatsCard
+            Label="Today's Sales"
+            Value="R 12,450"
+            SubText="Completed transactions"
+            Icon="payments" />
+
+    </div>
+
+    <div class="col-md-4">
+
+        <StatsCard
+            Label="Items Sold"
+            Value="248"
+            SubText="Products processed"
+            Icon="shopping_cart" />
+
+    </div>
+
+    <div class="col-md-4">
+
+        <StatsCard
+            Label="Low Stock Alerts"
+            Value="12"
+            SubText="Products needing attention"
+            Icon="warning" />
+
+    </div>
+
+</div>
+
+<div class="row g-3">
+
+    <div class="col-xl-7">
+
+        <RecentActivityFeed />
+
+    </div>
+
+    <div class="col-xl-5">
+
+        <LowStockAlerts />
+
+    </div>
+
+</div>

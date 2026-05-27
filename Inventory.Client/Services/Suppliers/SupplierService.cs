@@ -24,4 +24,10 @@ public class SupplierService
 
         return suppliers ?? new();
     }
+
+    public async Task<bool> CreateAsync(SupplierCreateDto dto)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/Suppliers", dto);
+        return response.IsSuccessStatusCode;
+    }
 }

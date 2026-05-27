@@ -69,8 +69,8 @@ else
                             <div class="fw-semibold">
 
                                 @(tx.IsIncrease
-                                    ? $"Received {tx.Quantity} units"
-                                    : $"Sold {tx.Quantity} units")
+                                    ? $"Received {tx.Quantity} {tx.ItemName}"
+                                    : $"Sold {tx.Quantity} {tx.ItemName}")
 
                             </div>
 

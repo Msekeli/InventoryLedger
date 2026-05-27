@@ -1,0 +1,118 @@
+@page "/users"
+
+@using Inventory.Client.Models.Auth
+@using Inventory.Client.Services.Auth
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<div class="container mt-4">
+	<h3>User Management</h3>
+	<p class="text-muted mb-4">This app currently uses demo authentication, so this page shows the current session and the built-in role model.</p>
+
+	<div class="row g-3 mb-3">
+		<div class="col-lg-4">
+			<div class="card h-100">
+				<div class="card-body">
+					<h5 class="card-title">Current Session</h5>
+					@if (_isLoading)
+					{
+						<p class="text-muted mb-0">Loading user...</p>
+					}
+					else if (CurrentUser is null)
+					{
+						<p class="text-muted mb-0">No active user session.</p>
+					}
+					else
+					{
+						<div class="d-flex align-items-center justify-content-between mb-2">
+							<strong>@CurrentUserDisplayName</strong>
+							<span class="badge bg-secondary">@CurrentUser.RoleType</span>
+						</div>
+						<div class="small text-muted">User ID: @CurrentUser.Id</div>
+						<div class="small text-muted">Active: @(CurrentUser.IsActive ? "Yes" : "No")</div>
+					}
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-8">
+			<div class="card h-100">
+				<div class="card-body">
+					<h5 class="card-title">Role Matrix</h5>
+					<div class="table-responsive">
+						<table class="table table-sm align-middle mb-0">
+							<thead class="table-light">
+								<tr>
+									<th>Role</th>
+									<th>Can access</th>
+									<th>Notes</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>Owner</td>
+									<td>Items, Transactions, Low Stock, Inventory Summary, Suppliers, Reports, Users</td>
+									<td>Full admin access.</td>
+								</tr>
+								<tr>
+									<td>Cashier</td>
+									<td>Items, Transactions</td>
+									<td>Sales-focused access.</td>
+								</tr>
+								<tr>
+									<td>Stock Clerk</td>
+									<td>Items, Low Stock, Inventory Summary, Suppliers</td>
+									<td>Inventory operations access.</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="card">
+		<div class="card-body">
+			<div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+				<div>
+					<h5 class="mb-1">User actions</h5>
+					<p class="text-muted mb-0">The backend does not expose a user management API yet, so these controls are session-level only.</p>
+				</div>
+
+				<div class="d-flex gap-2">
+					<button class="btn btn-primary" @onclick="GoToLogin">Open Login</button>
+					<button class="btn btn-outline-secondary" @onclick="Reload">Refresh Session</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+    private AppUser? CurrentUser;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Reload();
+    }
+
+    private async Task Reload()
+    {
+        _isLoading = true;
+        CurrentUser = await AuthService.GetCurrentUserAsync();
+        _isLoading = false;
+    }
+
+    private string CurrentUserDisplayName =>
+        CurrentUser is null
+            ? "Guest"
+            : $"{CurrentUser.FirstName} {CurrentUser.LastName}";
+
+    private void GoToLogin()
+    {
+        Navigation.NavigateTo("/login");
+    }
+}
+
