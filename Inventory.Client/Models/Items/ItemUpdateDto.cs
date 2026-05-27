@@ -9,4 +9,6 @@ public class ItemUpdateDto
     public decimal SellingPrice { get; set; }
 
     public int LowStockThreshold { get; set; }
+
+    public int? SupplierId { get; set; }
 }

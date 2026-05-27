@@ -6,6 +6,7 @@ using Inventory.Client.Services.Dashboard;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Radzen;
 using Inventory.Client.Services.Auth;
+using Inventory.Client.Services.Suppliers;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -23,6 +24,7 @@ builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IStockTransactionService, StockTransactionService>();
 builder.Services.AddScoped<IInventoryServiceClient, InventoryServiceClient>();
 builder.Services.AddScoped<DashboardService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
 
 // Radzen services
 builder.Services.AddScoped<DialogService>();

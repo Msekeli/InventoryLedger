@@ -6,6 +6,8 @@ public class CreateStockTransactionDto
 
     public int Quantity { get; set; }
 
+    public int TransactionType { get; set; }
+
     public string ReferenceNumber { get; set; } = string.Empty;
 
     public string Notes { get; set; } = string.Empty;

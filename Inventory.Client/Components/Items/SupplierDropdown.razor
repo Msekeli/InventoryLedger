@@ -1,0 +1,40 @@
+@using Inventory.Client.Models.Suppliers
+@using Inventory.Client.Services.Suppliers
+@using Radzen.Blazor
+
+@inject ISupplierService SupplierService
+
+<RadzenDropDown Data="@_suppliers"
+                TValue="int?"
+                TextProperty="Name"
+                ValueProperty="Id"
+                Placeholder="Select supplier"
+                Style="width: 100%;"
+                AllowFiltering="true"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                @bind-Value="Value"
+                Change="OnChanged" />
+
+@code {
+
+    private List<SupplierDto> _suppliers = new();
+
+    [Parameter]
+    public int? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<int?> ValueChanged { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _suppliers =
+            await SupplierService
+                .GetAllAsync();
+    }
+
+    private async Task OnChanged(object? value)
+    {
+        await ValueChanged
+            .InvokeAsync((int?)value);
+    }
+}

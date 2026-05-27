@@ -1,106 +1,208 @@
 @page "/items"
+
 @using Inventory.Client.Models.Items
 @using Inventory.Client.Components.Items
+@using Inventory.Client.Models.Suppliers
+@using Inventory.Client.Services.Suppliers
+@inject ISupplierService SupplierService
+
 @inject IItemService ItemService
 
-<h3 class="mt-3">Items</h3>
+<h3 class="mt-3 mb-4">
+    Inventory Items
+</h3>
 
-<!-- SEARCH + CREATE BUTTON -->
-<div class="d-flex justify-content-between align-items-center mb-3">
+<!-- HEADER ACTIONS -->
 
-    <!-- Search box with icon -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <!-- SEARCH -->
+
     <div class="input-group w-50">
-        <span class="input-group-text bg-white">
+
+        <span class="input-group-text bg-white border-end-0">
+
             <i class="bi bi-search"></i>
+
         </span>
 
-        <input class="form-control"
-               placeholder="Search items..."
+        <input class="form-control border-start-0"
+               placeholder="Search inventory..."
                @oninput="SearchChanged" />
+
     </div>
 
-    <button class="btn btn-primary" @onclick="ShowCreateModal">
-        + Add Item
-    </button>
-</div>
+    <!-- SUPPLIER FILTER -->
+    <div class="d-flex align-items-center gap-2">
 
-@if (pagedItems == null)
+        <span class="text-muted">
+            Filter by Supplier:
+        </span>
+
+        <select class="form-select form-select-sm"
+                style="width: 200px;"
+                @onchange="SupplierFilterChanged">
+
+            <option value="">
+                All Suppliers
+            </option>
+
+            @foreach (var supplier in suppliers)
+            {
+                <option value="@supplier.Id">
+                    @supplier.Name
+                </option>
+            }
+
+        </select>
+
+    <!-- ADD BUTTON -->
+
+    <button class="btn btn-primary shadow-sm"
+            @onclick="ShowCreateModal">
+
+        <i class="bi bi-plus-circle me-2"></i>
+
+        Add Item
+
+    </button>
+
+    </div>
+
+    </div>
+
+<!-- ITEMS GRID -->
+
+@if (items == null)
 {
-    <p>Loading...</p>
+    <LoadingSpinner Text="Loading inventory items..." />
 }
-else if (pagedItems.Count == 0)
+else if (!items.Any())
 {
-    <p>No items found.</p>
+    <EmptyState
+        Title="No Items Found"
+        Message="No inventory items available." />
 }
 else
 {
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover">
-            <thead class="table-light">
-                <tr>
-                    <th @onclick="()=>SortBy(nameof(ItemResponseDto.SKU))"
-                        style="cursor:pointer">SKU @SortIcon(nameof(ItemResponseDto.SKU))</th>
+    <RadzenCard Variant="Variant.Flat"
+                class="shadow-sm border-0">
 
-                    <th @onclick="()=>SortBy(nameof(ItemResponseDto.Name))"
-                        style="cursor:pointer">Name @SortIcon(nameof(ItemResponseDto.Name))</th>
+        <RadzenDataGrid Data="@filteredItems"
+                        TItem="ItemResponseDto"
+                        AllowPaging="true"
+                        PageSize="10"
+                        AllowSorting="true"
+                        AllowFiltering="false"
+                        Responsive="true"
+                        EmptyText="No items found">
 
-                    <th @onclick="()=>SortBy(nameof(ItemResponseDto.SellingPrice))"
-                        style="cursor:pointer">Price @SortIcon(nameof(ItemResponseDto.SellingPrice))</th>
+            <Columns>
 
-                    <th @onclick="()=>SortBy(nameof(ItemResponseDto.OnHand))"
-                        style="cursor:pointer">On Hand @SortIcon(nameof(ItemResponseDto.OnHand))</th>
+                <!-- SKU -->
 
-                    <th style="width: 160px;">Actions</th>
-                </tr>
-            </thead>
+                <RadzenDataGridColumn TItem="ItemResponseDto"
+                                      Property="SKU"
+                                      Title="SKU" />
 
-            <tbody>
-                @foreach (var item in pagedItems)
-                {
-                    <tr>
-                        <td>@item.SKU</td>
-                        <td>@item.Name</td>
-                        <td>R @item.SellingPrice</td>
-                        <td>@item.OnHand</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-secondary me-2"
+                <!-- NAME -->
+
+                <RadzenDataGridColumn TItem="ItemResponseDto"
+                                      Property="Name"
+                                      Title="Item" />
+
+                <!-- PRICE -->
+
+                <RadzenDataGridColumn TItem="ItemResponseDto"
+                                      Property="SellingPrice"
+                                      Title="Price">
+
+                    <Template Context="item">
+
+                        <span class="fw-semibold text-success">
+
+                            @($"R {item.SellingPrice:N2}")
+
+                        </span>
+
+                    </Template>
+
+                </RadzenDataGridColumn>
+
+                <!-- STOCK -->
+
+                <RadzenDataGridColumn TItem="ItemResponseDto"
+                                      Property="OnHand"
+                                      Title="Stock">
+
+                    <Template Context="item">
+
+                        @if (item.OnHand <= item.LowStockThreshold)
+                        {
+                            <RadzenBadge Text="@($"{item.OnHand} Low")"
+                                         BadgeStyle="BadgeStyle.Warning"
+                                         Shade="Shade.Light"
+                                         Variant="Variant.Flat" />
+                        }
+                        else
+                        {
+                            <RadzenBadge Text="@($"{item.OnHand} Healthy")"
+                                         BadgeStyle="BadgeStyle.Success"
+                                         Shade="Shade.Light"
+                                         Variant="Variant.Flat" />
+                        }
+
+                    </Template>
+
+                </RadzenDataGridColumn>
+
+                <!-- ACTIONS -->
+
+                <RadzenDataGridColumn TItem="ItemResponseDto"
+                                      Title="Actions"
+                                      Width="180px"
+                                      Sortable="false"
+                                      Filterable="false">
+
+                    <Template Context="item">
+
+                        <div class="d-flex gap-2">
+
+                            <!-- EDIT -->
+
+                            <button class="btn btn-sm btn-outline-secondary"
+                                    title="Edit Item"
                                     @onclick="() => ShowEditModal(item)">
+
                                 <i class="bi bi-pencil"></i>
+
                             </button>
+
+                            <!-- DELETE -->
 
                             <button class="btn btn-sm btn-outline-danger"
+                                    title="Delete Item"
                                     @onclick="() => ShowDeleteModal(item)">
+
                                 <i class="bi bi-trash"></i>
+
                             </button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
 
-    <!-- PAGINATION -->
-    <nav>
-        <ul class="pagination">
-            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                <button class="page-link" @onclick="PrevPage">Previous</button>
-            </li>
+                        </div>
 
-            @for (int i = 1; i <= totalPages; i++)
-            {
-                <li class="page-item @(i == currentPage ? "active" : "")">
-                    <button class="page-link" @onclick="()=>GoToPage(i)">@i</button>
-                </li>
-            }
+                    </Template>
 
-            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                <button class="page-link" @onclick="NextPage">Next</button>
-            </li>
-        </ul>
-    </nav>
+                </RadzenDataGridColumn>
+
+            </Columns>
+
+        </RadzenDataGrid>
+
+    </RadzenCard>
 }
 
 <!-- CREATE MODAL -->
+
 @if (showCreateModal)
 {
     <ItemFormModal Title="Create Item"
@@ -110,6 +212,7 @@ else
 }
 
 <!-- EDIT MODAL -->
+
 @if (showEditModal && selectedItem != null)
 {
     <ItemFormModal Title="Edit Item"
@@ -119,64 +222,103 @@ else
                    OnClose="@(() => showEditModal = false)" />
 }
 
-<!-- DELETE CONFIRMATION MODAL -->
+<!-- DELETE MODAL -->
+
 @if (showDeleteModal && selectedItem != null)
 {
-    <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5)">
+    <div class="modal fade show d-block"
+         style="background: rgba(0,0,0,0.5)">
+
         <div class="modal-dialog">
+
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title">Delete Item</h5>
+
+                    <h5 class="modal-title">
+                        Delete Item
+                    </h5>
+
                 </div>
 
                 <div class="modal-body">
-                    <p>Are you sure you want to delete <strong>@selectedItem.Name</strong>?</p>
+
+                    <p>
+
+                        Are you sure you want to delete
+
+                        <strong>@selectedItem.Name</strong>?
+
+                    </p>
+
                 </div>
 
                 <div class="modal-footer">
-                    <button class="btn btn-danger" @onclick="DeleteItem">Delete</button>
-                    <button class="btn btn-secondary" @onclick="HideDeleteModal">Cancel</button>
+
+                    <button class="btn btn-danger"
+                            @onclick="DeleteItem">
+
+                        Delete
+
+                    </button>
+
+                    <button class="btn btn-secondary"
+                            @onclick="HideDeleteModal">
+
+                        Cancel
+
+                    </button>
+
                 </div>
 
             </div>
+
         </div>
+
     </div>
 }
 
 @code {
+
     private List<ItemResponseDto>? items;
-    private List<ItemResponseDto>? pagedItems;
+
+    private List<ItemResponseDto> filteredItems = new();
 
     private ItemResponseDto? selectedItem;
 
     private bool showCreateModal = false;
+
     private bool showEditModal = false;
+
     private bool showDeleteModal = false;
-
-    private string sortColumn = nameof(ItemResponseDto.Name);
-    private bool sortAsc = true;
-
-    private int currentPage = 1;
-    private int pageSize = 6;
-    private int totalPages = 1;
 
     private string searchText = "";
 
+    private List<SupplierDto> suppliers = new();
+
+    private int? selectedSupplierId;
+
     protected override async Task OnInitializedAsync()
     {
+        suppliers = await SupplierService.GetAllAsync();
+
         await ReloadItems();
     }
 
     private async Task ReloadItems()
     {
-        items = await ItemService.GetAllAsync();
+        items =
+            await ItemService
+                .GetAllAsync();
+
         ApplyFilters();
     }
 
     private void SearchChanged(ChangeEventArgs e)
     {
-        searchText = e.Value?.ToString() ?? "";
+        searchText =
+            e.Value?.ToString() ?? "";
+
         ApplyFilters();
     }
 
@@ -187,94 +329,58 @@ else
 
         IEnumerable<ItemResponseDto> query = items;
 
-        // Search filter
         if (!string.IsNullOrWhiteSpace(searchText))
         {
-            var s = searchText.ToLower();
-            query = query.Where(i =>
-                   i.Name.ToLower().Contains(s)
-                || i.SKU.ToLower().Contains(s));
+            var s =
+                searchText.ToLower();
+
+            query =
+                query.Where(i =>
+                       i.Name.ToLower().Contains(s)
+                    || i.SKU.ToLower().Contains(s));
         }
 
-        // Sorting
-        query = sortColumn switch
+        if (selectedSupplierId.HasValue)
         {
-            nameof(ItemResponseDto.SKU) => sortAsc ? query.OrderBy(i => i.SKU) : query.OrderByDescending(i => i.SKU),
-            nameof(ItemResponseDto.Name) => sortAsc ? query.OrderBy(i => i.Name) : query.OrderByDescending(i => i.Name),
-            nameof(ItemResponseDto.SellingPrice) => sortAsc ? query.OrderBy(i => i.SellingPrice) : query.OrderByDescending(i => i.SellingPrice),
-            nameof(ItemResponseDto.OnHand) => sortAsc ? query.OrderBy(i => i.OnHand) : query.OrderByDescending(i => i.OnHand),
-            _ => query
-        };
+            query = query.Where(i => i.SupplierId.HasValue && i.SupplierId.Value == selectedSupplierId.Value);
+        }
 
-        // Pagination
-        totalPages = (int)Math.Ceiling(query.Count() / (double)pageSize);
-        currentPage = Math.Clamp(currentPage, 1, totalPages);
-
-        pagedItems = query
-            .Skip((currentPage - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
+        filteredItems =
+            query.ToList();
     }
 
-    private void SortBy(string column)
+    private void SupplierFilterChanged(ChangeEventArgs e)
     {
-        if (sortColumn == column)
-            sortAsc = !sortAsc;
+        var val = e.Value?.ToString();
+
+        if (int.TryParse(val, out var id))
+            selectedSupplierId = id;
         else
-            sortColumn = column;
+            selectedSupplierId = null;
 
         ApplyFilters();
     }
 
-    private RenderFragment SortIcon(string column) => builder =>
-    {
-        if (sortColumn != column) return;
-
-        var icon = sortAsc ? "▲" : "▼";
-        builder.AddContent(0, " " + icon);
-    };
-
-    // Pagination
-    private void NextPage()
-    {
-        if (currentPage < totalPages)
-        {
-            currentPage++;
-            ApplyFilters();
-        }
-    }
-
-    private void PrevPage()
-    {
-        if (currentPage > 1)
-        {
-            currentPage--;
-            ApplyFilters();
-        }
-    }
-
-    private void GoToPage(int page)
-    {
-        currentPage = page;
-        ApplyFilters();
-    }
-
-    // Modal handlers
     private void ShowCreateModal()
     {
         selectedItem = null;
+
         showCreateModal = true;
     }
 
-    private void ShowEditModal(ItemResponseDto item)
+    private void ShowEditModal(
+        ItemResponseDto item)
     {
         selectedItem = item;
+
         showEditModal = true;
     }
 
-    private void ShowDeleteModal(ItemResponseDto item)
+    private void ShowDeleteModal(
+        ItemResponseDto item)
     {
         selectedItem = item;
+
         showDeleteModal = true;
     }
 
@@ -288,7 +394,9 @@ else
         if (selectedItem == null)
             return;
 
-        var success = await ItemService.DeleteAsync(selectedItem.Id);
+        var success =
+            await ItemService
+                .DeleteAsync(selectedItem.Id);
 
         if (success)
             await ReloadItems();
