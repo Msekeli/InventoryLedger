@@ -1,4 +1,5 @@
 using Inventory.Application.Interfaces;
+using Inventory.Api.Models.Inventory;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inventory.Api.Controllers;
@@ -13,17 +14,26 @@ public class InventoryController
         _inventoryService;
 
     private readonly
+        IItemRepository
+        _itemRepository;
+
+    private readonly
         IStockTransactionRepository
         _transactionRepository;
 
     public InventoryController(
         IInventoryService
             inventoryService,
+        IItemRepository
+            itemRepository,
         IStockTransactionRepository
             transactionRepository)
     {
         _inventoryService =
             inventoryService;
+
+        _itemRepository =
+            itemRepository;
 
         _transactionRepository =
             transactionRepository;
@@ -35,34 +45,55 @@ public class InventoryController
             [FromQuery]
             bool lowStockOnly = false)
     {
-        var summary =
+        var summaryRows =
             await _transactionRepository
                 .GetInventorySummaryAsync();
 
+        var items =
+            await _itemRepository
+                .GetAllAsync();
+
+        var itemsById =
+            items.ToDictionary(
+                item => item.Id);
+
+        var summary =
+            summaryRows
+                .Select(row =>
+                {
+                    itemsById.TryGetValue(
+                        row.Id,
+                        out var item);
+
+                    return new InventoryItemDto
+                    {
+                        Id = row.Id,
+                        SKU = row.SKU,
+                        Name = row.Name,
+                        OnHand = row.CurrentStock,
+                        LowStockThreshold = item?.LowStockThreshold ?? 0,
+                        UnitCostPrice = row.CostPrice,
+                        InventoryCostValue = row.InventoryCostValue
+                    };
+                })
+                .ToList();
+
         if (lowStockOnly)
         {
-            var lowStock =
-                await _transactionRepository
-                    .GetLowStockItemsAsync();
-
             summary =
                 summary
                     .Where(
-                        x => lowStock
-                            .Any(
-                                y => y.Id == x.Id))
+                        x => x.IsLowStock)
                     .ToList();
         }
 
         return Ok(
-            new
+            new InventorySummaryDto
             {
-                TotalInventoryValue =
-                    summary.Sum(
-                        x => x.InventoryCostValue),
+                TotalInventoryValue = summary
+                    .Sum(x => x.InventoryCostValue),
 
-                Items =
-                    summary
+                Items = summary
             });
     }
 
@@ -103,7 +134,7 @@ public async Task<IActionResult>
             .GetLowStockItemsAsync();
 
     var results =
-        new List<Inventory.Api.Models.Inventory.InventoryItemDto>();
+            new List<InventoryItemDto>();
 
     foreach (var item in lowStockRows)
     {
@@ -112,13 +143,13 @@ public async Task<IActionResult>
                 .GetOnHandQuantityAsync(item.Id);
 
         results.Add(
-            new Inventory.Api.Models.Inventory.InventoryItemDto
+                new InventoryItemDto
             {
-                ItemId = item.Id,
+                    Id = item.Id,
                 SKU = item.SKU,
                 Name = item.Name,
                 OnHand = onHand,
-                LowStockThreshold = item.LowStockThreshold
+                    LowStockThreshold = item.LowStockThreshold
             });
     }
 
