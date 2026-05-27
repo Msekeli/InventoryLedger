@@ -1,0 +1,327 @@
+@page "/low-stock"
+
+@using Inventory.Client.Models.Inventory
+@using Inventory.Client.Services.Inventory
+
+@inject IInventoryServiceClient InventoryService
+@inject NavigationManager Navigation
+
+<PageHeader Title="Low Stock"
+            SubTitle="Monitor products that require replenishment."
+            Actions="@HeaderActions" />
+
+<RadzenCard class="mb-3">
+
+    <div class="row g-3 align-items-end">
+
+        <div class="col-md-6">
+
+            <label class="form-label">
+                Search
+            </label>
+
+            <RadzenTextBox
+                Style="width: 100%;"
+                Placeholder="Search by SKU or product name..."
+                Value="@searchText"
+                Change="@OnSearchChanged" />
+
+        </div>
+
+        <div class="col-md-3">
+
+            <label class="form-label">
+                Severity
+            </label>
+
+            <RadzenDropDown
+                Style="width: 100%;"
+                TValue="string"
+                Data="@SeverityOptions"
+                TextProperty="Text"
+                ValueProperty="Value"
+                Value="@severityFilter"
+                Change="@OnSeverityChanged" />
+
+        </div>
+
+        <div class="col-md-3">
+
+            <RadzenButton
+                Text="Clear Filters"
+                Icon="close"
+                ButtonStyle="ButtonStyle.Light"
+                Click="@ClearFilters"
+                Style="width: 100%;" />
+
+        </div>
+
+    </div>
+
+</RadzenCard>
+
+@if (isLoading)
+{
+    <LoadingSpinner Text="Loading low stock items..." />
+}
+else if (!filteredItems.Any())
+{
+    <EmptyState
+        Title="No low stock alerts"
+        Message="All inventory items are currently above threshold." />
+}
+else
+{
+    <RadzenCard class="border-0 shadow-sm">
+
+        <RadzenDataGrid Data="@filteredItems"
+                        TItem="InventoryItemDto"
+                        AllowPaging="true"
+                        AllowSorting="true"
+                        PageSize="10"
+                        Responsive="true"
+                        EmptyText="No low stock items found">
+
+            <Columns>
+
+                <RadzenDataGridColumn TItem="InventoryItemDto"
+                                      Property="SKU"
+                                      Title="SKU" />
+
+                <RadzenDataGridColumn TItem="InventoryItemDto"
+                                      Property="Name"
+                                      Title="Product" />
+
+                <RadzenDataGridColumn TItem="InventoryItemDto"
+                                      Property="OnHand"
+                                      Title="On Hand">
+
+                    <Template Context="item">
+
+                        <span class="fw-semibold @(item.OnHand <= 0 ? "text-danger" : "text-warning")">
+                            @item.OnHand
+                        </span>
+
+                    </Template>
+
+                </RadzenDataGridColumn>
+
+                <RadzenDataGridColumn TItem="InventoryItemDto"
+                                      Property="LowStockThreshold"
+                                      Title="Threshold" />
+
+                <RadzenDataGridColumn TItem="InventoryItemDto"
+                                      Title="Status"
+                                      Sortable="false"
+                                      Filterable="false">
+
+                    <Template Context="item">
+
+                        <RadzenBadge
+                            Text="@GetStatusLabel(item)"
+                            BadgeStyle="@GetStatusStyle(item)"
+                            Shade="Shade.Light"
+                            Variant="Variant.Flat" />
+
+                    </Template>
+
+                </RadzenDataGridColumn>
+
+                <RadzenDataGridColumn TItem="InventoryItemDto"
+                                      Title="Gap"
+                                      Sortable="false"
+                                      Filterable="false">
+
+                    <Template Context="item">
+
+                        @GetGapText(item)
+
+                    </Template>
+
+                </RadzenDataGridColumn>
+
+                <RadzenDataGridColumn TItem="InventoryItemDto"
+                                      Title="Action"
+                                      Sortable="false"
+                                      Filterable="false"
+                                      TextAlign="TextAlign.Center">
+
+                    <Template Context="item">
+
+                        <RadzenButton
+                            Text="Restock"
+                            Icon="add_shopping_cart"
+                            Size="ButtonSize.Small"
+                            ButtonStyle="ButtonStyle.Primary"
+                            Click="@(() => OpenRestock(item.Id))" />
+
+                    </Template>
+
+                </RadzenDataGridColumn>
+
+            </Columns>
+
+        </RadzenDataGrid>
+
+    </RadzenCard>
+}
+
+@code {
+
+    private bool isLoading = true;
+
+    private List<InventoryItemDto> lowStockItems = new();
+
+    private List<InventoryItemDto> filteredItems = new();
+
+    private string searchText = string.Empty;
+
+    private string severityFilter = "all";
+
+    private readonly List<object> SeverityOptions =
+    [
+        new { Text = "All Low Stock", Value = "all" },
+        new { Text = "Out of Stock", Value = "critical" },
+        new { Text = "Low Stock", Value = "low" }
+    ];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private RenderFragment HeaderActions => builder =>
+    {
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "class", "d-flex gap-2");
+
+        builder.OpenComponent<RadzenButton>(2);
+        builder.AddAttribute(3, "Text", "Refresh");
+        builder.AddAttribute(4, "Icon", "refresh");
+        builder.AddAttribute(5, "ButtonStyle", ButtonStyle.Light);
+        builder.AddAttribute(6, "Click",
+            EventCallback.Factory.Create(this, LoadAsync));
+        builder.CloseComponent();
+
+        builder.OpenComponent<RadzenButton>(7);
+        builder.AddAttribute(8, "Text", "View Items");
+        builder.AddAttribute(9, "Icon", "inventory_2");
+        builder.AddAttribute(10, "ButtonStyle", ButtonStyle.Primary);
+        builder.AddAttribute(11, "Click",
+            EventCallback.Factory.Create(this,
+                () => Navigation.NavigateTo("/items")));
+        builder.CloseComponent();
+
+        builder.CloseElement();
+    };
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            isLoading = true;
+
+            lowStockItems =
+                await InventoryService.GetLowStockItemsAsync();
+
+            ApplyFilters();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void OnSearchChanged(object value)
+    {
+        searchText = value?.ToString() ?? string.Empty;
+
+        ApplyFilters();
+    }
+
+    private void OnSeverityChanged(object value)
+    {
+        severityFilter = value?.ToString() ?? "all";
+
+        ApplyFilters();
+    }
+
+    private void ClearFilters()
+    {
+        searchText = string.Empty;
+
+        severityFilter = "all";
+
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        IEnumerable<InventoryItemDto> query =
+            lowStockItems;
+
+        // SEARCH
+
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            var search =
+                searchText.Trim().ToLowerInvariant();
+
+            query = query.Where(item =>
+
+                item.SKU.ToLowerInvariant().Contains(search)
+
+                ||
+
+                item.Name.ToLowerInvariant().Contains(search)
+            );
+        }
+
+        // SEVERITY
+
+        query = severityFilter switch
+        {
+            "critical" => query.Where(item =>
+                item.OnHand <= 0),
+
+            "low" => query.Where(item =>
+                item.OnHand > 0),
+
+            _ => query
+        };
+
+        filteredItems = query
+            .OrderBy(item => item.OnHand)
+            .ThenBy(item => item.Name)
+            .ToList();
+    }
+
+    private string GetStatusLabel(InventoryItemDto item)
+    {
+        return item.OnHand <= 0
+            ? "Out of Stock"
+            : "Low Stock";
+    }
+
+    private BadgeStyle GetStatusStyle(InventoryItemDto item)
+    {
+        return item.OnHand <= 0
+            ? BadgeStyle.Danger
+            : BadgeStyle.Warning;
+    }
+
+    private string GetGapText(InventoryItemDto item)
+    {
+        var gap =
+            item.LowStockThreshold - item.OnHand;
+
+        return gap > 0
+            ? $"{gap} below threshold"
+            : "At threshold";
+    }
+
+    private void OpenRestock(int itemId)
+    {
+        Navigation.NavigateTo($"/transactions");
+    }
+}

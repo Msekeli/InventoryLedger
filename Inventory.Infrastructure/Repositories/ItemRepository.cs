@@ -1,4 +1,5 @@
 using Inventory.Application.Interfaces;
+using Inventory.Domain.Enums;
 using Inventory.Domain.Entities;
 using Inventory.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -39,9 +40,39 @@ public class ItemRepository : IItemRepository
 
     public async Task<List<Item>> GetLowStockItemsAsync()
     {
-        return await _context.Items
+        var items = await _context.Items
             .Where(i => i.IsActive)
             .ToListAsync();
+
+        var transactions = await _context.StockTransactions
+            .Select(t => new
+            {
+                t.ItemId,
+                t.Quantity,
+                t.TransactionType
+            })
+            .ToListAsync();
+
+        var currentStockByItem = transactions
+            .GroupBy(t => t.ItemId)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Sum(t =>
+                    t.TransactionType == TransactionType.StockReceived ? t.Quantity :
+                    t.TransactionType == TransactionType.Sale ? -t.Quantity :
+                    t.TransactionType == TransactionType.CustomerReturn ? t.Quantity :
+                    t.TransactionType == TransactionType.SupplierReturn ? -t.Quantity :
+                    t.TransactionType == TransactionType.Damaged ? -t.Quantity :
+                    t.TransactionType == TransactionType.Expired ? -t.Quantity :
+                    t.TransactionType == TransactionType.Adjustment ? t.Quantity :
+                    t.TransactionType == TransactionType.StockCountCorrection ? t.Quantity :
+                    0));
+
+        return items
+            .Where(i =>
+                currentStockByItem.TryGetValue(i.Id, out var onHand)
+                && onHand < i.LowStockThreshold)
+            .ToList();
     }
 
     public async Task AddAsync(Item item)
