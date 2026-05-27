@@ -44,6 +44,27 @@ public class StockTransactionsController
             transactions);
     }
 
+    [HttpGet("recent")]
+    public async Task<IActionResult>
+        GetRecent(
+            [FromQuery]
+            int take = 10)
+    {
+        var transactions =
+            await _transactionRepository
+                .GetAllAsync();
+
+        var recent =
+            transactions
+                .OrderByDescending(
+                    x => x.Timestamp)
+                .Take(take)
+                .ToList();
+
+        return Ok(
+            recent);
+    }
+
     [HttpPost("receive-stock")]
     public async Task<IActionResult>
         ReceiveStock(

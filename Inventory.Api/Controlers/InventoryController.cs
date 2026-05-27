@@ -94,15 +94,34 @@ public class InventoryController
             value);
     }
 
-    [HttpGet("low-stock")]
-    public async Task<IActionResult>
-        GetLowStock()
-    {
-        var items =
-            await _transactionRepository
-                .GetLowStockItemsAsync();
+[HttpGet("low-stock")]
+public async Task<IActionResult>
+    GetLowStock()
+{
+    var lowStockRows =
+        await _transactionRepository
+            .GetLowStockItemsAsync();
 
-        return Ok(
-            items);
+    var results =
+        new List<Inventory.Api.Models.Inventory.InventoryItemDto>();
+
+    foreach (var item in lowStockRows)
+    {
+        var onHand =
+            await _inventoryService
+                .GetOnHandQuantityAsync(item.Id);
+
+        results.Add(
+            new Inventory.Api.Models.Inventory.InventoryItemDto
+            {
+                ItemId = item.Id,
+                SKU = item.SKU,
+                Name = item.Name,
+                OnHand = onHand,
+                LowStockThreshold = item.LowStockThreshold
+            });
     }
+
+    return Ok(results);
+}
 }

@@ -78,12 +78,12 @@ else
                         On Hand @SortIcon(nameof(InventoryItemDto.OnHand))
                     </th>
 
-                    <th @onclick="()=>SortBy(nameof(InventoryItemDto.UnitPrice))" style="cursor:pointer;">
-                        Unit Price @SortIcon(nameof(InventoryItemDto.UnitPrice))
+                    <th @onclick="()=>SortBy(nameof(InventoryItemDto.UnitCostPrice))" style="cursor:pointer;">
+                        Unit Cost @SortIcon(nameof(InventoryItemDto.UnitCostPrice))
                     </th>
 
-                    <th @onclick="()=>SortBy(nameof(InventoryItemDto.Value))" style="cursor:pointer;">
-                        Value @SortIcon(nameof(InventoryItemDto.Value))
+                    <th @onclick="()=>SortBy(nameof(InventoryItemDto.InventoryCostValue))" style="cursor:pointer;">
+                        Value @SortIcon(nameof(InventoryItemDto.InventoryCostValue))
                     </th>
 
                     <th @onclick="()=>SortBy(nameof(InventoryItemDto.LowStockThreshold))" style="cursor:pointer;">
@@ -99,8 +99,8 @@ else
                         <td>@item.SKU</td>
                         <td>@item.Name</td>
                         <td>@item.OnHand</td>
-                        <td>R @item.UnitPrice</td>
-                        <td>R @item.Value</td>
+                        <td>R @item.UnitCostPrice</td>
+                        <td>R @item.InventoryCostValue</td>
                         <td>@item.LowStockThreshold</td>
                     </tr>
                 }
@@ -218,11 +218,11 @@ else
             nameof(InventoryItemDto.OnHand) => sortAsc ? filteredItems.OrderBy(i => i.OnHand).ToList()
                                                        : filteredItems.OrderByDescending(i => i.OnHand).ToList(),
 
-            nameof(InventoryItemDto.UnitPrice) => sortAsc ? filteredItems.OrderBy(i => i.UnitPrice).ToList()
-                                                          : filteredItems.OrderByDescending(i => i.UnitPrice).ToList(),
+            nameof(InventoryItemDto.UnitCostPrice) => sortAsc ? filteredItems.OrderBy(i => i.UnitCostPrice).ToList()
+                                                          : filteredItems.OrderByDescending(i => i.UnitCostPrice).ToList(),
 
-            nameof(InventoryItemDto.Value) => sortAsc ? filteredItems.OrderBy(i => i.Value).ToList()
-                                                      : filteredItems.OrderByDescending(i => i.Value).ToList(),
+            nameof(InventoryItemDto.InventoryCostValue) => sortAsc ? filteredItems.OrderBy(i => i.InventoryCostValue).ToList()
+                                                      : filteredItems.OrderByDescending(i => i.InventoryCostValue).ToList(),
 
             nameof(InventoryItemDto.LowStockThreshold) => sortAsc ? filteredItems.OrderBy(i => i.LowStockThreshold).ToList()
                                                                   : filteredItems.OrderByDescending(i => i.LowStockThreshold).ToList(),

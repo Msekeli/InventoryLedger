@@ -28,7 +28,7 @@
 
                 <div class="mb-3">
                     <label class="form-label">Transaction Type</label>
-                    <select class="form-select" @bind="Model.Type">
+                    <select class="form-select" @bind="transactionType">
                         <option value="IN">IN (Add Stock)</option>
                         <option value="OUT">OUT (Reduce Stock)</option>
                     </select>
@@ -41,7 +41,7 @@
 
                 <div class="mb-3">
                     <label class="form-label">Remarks</label>
-                    <input class="form-control" @bind="Model.Remarks" />
+                    <input class="form-control" @bind="Model.Notes" />
                 </div>
 
             </div>
@@ -69,10 +69,12 @@
     private bool showToast = false;
     private string toastMessage = "";
 
+    private string transactionType = "IN";
+
     protected override void OnInitialized()
     {
         Model.ItemId = ItemId;
-        Model.Type = "IN";
+        transactionType = "IN";
     }
 
     private async Task Save()
@@ -86,6 +88,9 @@
                 busy = false;
                 return;
             }
+
+            // Apply transaction direction: OUT transactions are negative quantity
+            Model.Quantity = transactionType == "OUT" ? -Math.Abs(Model.Quantity) : Math.Abs(Model.Quantity);
 
             var ok = await TransactionService.CreateAsync(Model);
 

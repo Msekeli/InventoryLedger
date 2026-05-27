@@ -8,38 +8,50 @@
 
     <!-- SIDEBAR -->
     <aside class="app-sidebar">
+
         <RadzenPanelMenu Style="border:none;">
 
             <RadzenPanelMenuItem Text="Dashboard"
                                  Icon="dashboard"
-                                 Path="/" />
+                                 Path="/dashboard" />
 
-            @if (IsOwner || IsStockClerk)
-            {
-                <RadzenPanelMenuItem Text="Items"
-                                     Icon="inventory_2"
-                                     Path="/items" />
-            }
+            <RadzenPanelMenuItem Text="Items"
+                                 Icon="inventory_2"
+                                 Path="/items"
+                                 Disabled="!CanAccessItems" />
 
-            @if (IsOwner || IsStockClerk)
-            {
-                <RadzenPanelMenuItem Text="Transactions"
-                                     Icon="receipt_long"
-                                     Path="/transactions" />
-            }
+            <RadzenPanelMenuItem Text="Transactions"
+                                 Icon="receipt_long"
+                                 Path="/transactions"
+                                 Disabled="!CanAccessTransactions" />
 
             <RadzenPanelMenuItem Text="Low Stock"
                                  Icon="warning"
-                                 Path="/low-stock" />
+                                 Path="/low-stock"
+                                 Disabled="!CanAccessLowStock" />
 
-            @if (IsOwner)
-            {
-                <RadzenPanelMenuItem Text="Suppliers"
-                                     Icon="local_shipping"
-                                     Path="/suppliers" />
-            }
+            <RadzenPanelMenuItem Text="Inventory Summary"
+                                 Icon="analytics"
+                                 Path="/inventory-summary"
+                                 Disabled="!CanAccessInventorySummary" />
+
+            <RadzenPanelMenuItem Text="Suppliers"
+                                 Icon="local_shipping"
+                                 Path="/suppliers"
+                                 Disabled="!CanAccessSuppliers" />
+
+            <RadzenPanelMenuItem Text="Reports"
+                                 Icon="assessment"
+                                 Path="/reports"
+                                 Disabled="!CanAccessReports" />
+
+            <RadzenPanelMenuItem Text="User Management"
+                                 Icon="group"
+                                 Path="/users"
+                                 Disabled="!CanAccessUsers" />
 
         </RadzenPanelMenu>
+
     </aside>
 
     <!-- TOP HEADER -->
@@ -60,7 +72,9 @@
                          Shade="Shade.Light"
                          Variant="Variant.Flat" />
 
-            <span class="fw-semibold">@CurrentUserName</span>
+            <span class="fw-semibold">
+                @CurrentUserName
+            </span>
 
             <RadzenButton Text="Logout"
                           Icon="logout"
@@ -79,12 +93,15 @@
 </div>
 
 @code {
+
     private AppUser? CurrentUser;
 
     protected override async Task OnInitializedAsync()
     {
         CurrentUser = await AuthService.GetCurrentUserAsync();
     }
+
+    // ROLES
 
     private bool IsOwner =>
         CurrentUser?.RoleType == RoleType.Owner;
@@ -95,6 +112,31 @@
     private bool IsStockClerk =>
         CurrentUser?.RoleType == RoleType.StockClerk;
 
+    // PERMISSIONS
+
+    private bool CanAccessItems =>
+        IsOwner || IsCashier || IsStockClerk;
+
+    private bool CanAccessTransactions =>
+        IsOwner || IsCashier;
+
+    private bool CanAccessLowStock =>
+        IsOwner || IsStockClerk;
+
+    private bool CanAccessInventorySummary =>
+        IsOwner || IsStockClerk;
+
+    private bool CanAccessSuppliers =>
+        IsOwner || IsStockClerk;
+
+    private bool CanAccessReports =>
+        IsOwner;
+
+    private bool CanAccessUsers =>
+        IsOwner;
+
+    // USER DISPLAY
+
     private string CurrentUserName =>
         CurrentUser is null
             ? "Guest"
@@ -103,9 +145,13 @@
     private string CurrentRole =>
         CurrentUser?.RoleType.ToString() ?? "Guest";
 
+    // LOGOUT
+
     private async Task Logout()
     {
         await AuthService.LogoutAsync();
-        Navigation.NavigateTo("/login", true);
+
+        Navigation.NavigateTo("/login");
     }
+
 }

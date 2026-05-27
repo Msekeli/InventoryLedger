@@ -1,0 +1,126 @@
+@using Inventory.Client.Models.Transactions
+@using Inventory.Client.Services.Dashboard
+
+@inject DashboardService DashboardService
+
+@if (_isLoading)
+{
+    <LoadingSpinner Text="Loading inventory movement..." />
+}
+else if (!_transactions.Any())
+{
+    <EmptyState
+        Title="No Inventory Movement"
+        Message="No stock movement available." />
+}
+else
+{
+    <RadzenCard Variant="Variant.Flat"
+                class="shadow-sm border-0 h-100">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h5 class="fw-bold mb-1">
+                    Inventory Movement
+                </h5>
+
+                <small class="text-muted">
+                    Stock movement over recent activity
+                </small>
+
+            </div>
+
+            <RadzenIcon Icon="show_chart"
+                        class="fs-2 text-primary" />
+
+        </div>
+
+        <RadzenChart Style="height: 350px;">
+
+            <!-- STOCK IN -->
+
+            <RadzenColumnSeries Data="@_stockInData"
+                                CategoryProperty="Label"
+                                ValueProperty="Value"
+                                Title="Stock In" />
+
+            <!-- STOCK OUT -->
+
+            <RadzenColumnSeries Data="@_stockOutData"
+                                CategoryProperty="Label"
+                                ValueProperty="Value"
+                                Title="Stock Out" />
+
+            <RadzenCategoryAxis Padding="20" />
+
+            <RadzenValueAxis />
+
+            <RadzenLegend Position="LegendPosition.Bottom" />
+
+        </RadzenChart>
+
+    </RadzenCard>
+}
+
+@code {
+
+    private bool _isLoading = true;
+
+    private List<StockTransactionDto> _transactions = new();
+
+    private List<MovementChartData> _stockInData = new();
+
+    private List<MovementChartData> _stockOutData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+
+        _transactions =
+            await DashboardService
+                .GetRecentTransactionsAsync();
+
+        var grouped =
+            _transactions
+                .GroupBy(t =>
+                    t.Timestamp
+                        .ToLocalTime()
+                        .ToString("dd MMM"))
+                .OrderBy(g => g.Key)
+                .Take(7)
+                .ToList();
+
+        _stockInData =
+            grouped
+                .Select(g => new MovementChartData
+                {
+                    Label = g.Key,
+                    Value = g
+                        .Where(x => x.IsIncrease)
+                        .Sum(x => x.Quantity)
+                })
+                .ToList();
+
+        _stockOutData =
+            grouped
+                .Select(g => new MovementChartData
+                {
+                    Label = g.Key,
+                    Value = g
+                        .Where(x => x.IsDecrease)
+                        .Sum(x => x.Quantity)
+                })
+                .ToList();
+
+        _isLoading = false;
+    }
+
+    public class MovementChartData
+    {
+        public string Label { get; set; } = string.Empty;
+
+        public int Value { get; set; }
+    }
+}

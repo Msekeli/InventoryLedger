@@ -1,2 +1,39 @@
-<h4>Welcome to the Owner Dashboard</h4>
-<p>This is the full business overview workspace.</p>
+@using Inventory.Client.Components.Dashboard
+
+<div class="d-flex flex-column gap-4">
+
+    <!-- KPI STRIP -->
+
+    <DashboardStatsStrip />
+
+    <!-- MAIN DASHBOARD GRID -->
+
+    <div class="row g-4">
+
+        <!-- INVENTORY MOVEMENT -->
+
+        <div class="col-12 col-xl-8">
+
+            <InventoryMovementChart />
+
+        </div>
+
+        <!-- LOW STOCK ALERTS -->
+
+        <div class="col-12 col-xl-4">
+
+            <LowStockAlerts />
+
+        </div>
+
+        <!-- RECENT ACTIVITY -->
+
+        <div class="col-12">
+
+            <RecentActivityFeed />
+
+        </div>
+
+    </div>
+
+</div>

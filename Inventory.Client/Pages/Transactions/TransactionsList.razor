@@ -131,11 +131,11 @@
                 <tbody>
                     @foreach (var tx in pagedTransactions)
                     {
-                        <tr class="@(tx.QuantityChange > 0 ? "table-success" : "table-danger")">
+                        <tr class="@(tx.IsIncrease ? "table-success" : "table-danger")">
                             <td>@tx.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
-                            <td>@(tx.QuantityChange > 0 ? "IN" : "OUT")</td>
-                            <td>@Math.Abs(tx.QuantityChange)</td>
-                            <td>@tx.Reference</td>
+                            <td>@(tx.IsIncrease ? "IN" : "OUT")</td>
+                            <td>@tx.Quantity</td>
+                            <td>@tx.ReferenceNumber</td>
                         </tr>
                     }
                 </tbody>
@@ -180,7 +180,7 @@
 @code {
     // DATA
     private List<ItemResponseDto>? items;
-    private List<StockTransactionDto>? allTransactions = new();
+    private List<StockTransactionDto> allTransactions = new();
     private List<StockTransactionDto> filteredTransactions = new();
     private List<StockTransactionDto> pagedTransactions = new();
 
@@ -230,12 +230,12 @@
         var today = DateTime.Now.Date;
 
         todayIn = allTransactions
-            .Where(t => t.Timestamp.ToLocalTime().Date == today && t.QuantityChange > 0)
-            .Sum(t => t.QuantityChange);
+            .Where(t => t.Timestamp.ToLocalTime().Date == today && t.IsIncrease)
+            .Sum(t => t.Quantity);
 
         todayOut = allTransactions
-            .Where(t => t.Timestamp.ToLocalTime().Date == today && t.QuantityChange < 0)
-            .Sum(t => Math.Abs(t.QuantityChange));
+            .Where(t => t.Timestamp.ToLocalTime().Date == today && !t.IsIncrease)
+            .Sum(t => t.Quantity);
 
         netMovement = todayIn - todayOut;
     }
@@ -246,10 +246,10 @@
         IEnumerable<StockTransactionDto> q = allTransactions;
 
         if (!string.IsNullOrWhiteSpace(search))
-            q = q.Where(t => t.Reference.Contains(search, StringComparison.OrdinalIgnoreCase));
+            q = q.Where(t => t.ReferenceNumber.Contains(search, StringComparison.OrdinalIgnoreCase));
 
         if (!string.IsNullOrWhiteSpace(filterType))
-            q = q.Where(t => (t.QuantityChange > 0 ? "IN" : "OUT") == filterType);
+            q = q.Where(t => (t.IsIncrease ? "IN" : "OUT") == filterType);
 
         if (!string.IsNullOrWhiteSpace(filterDate))
         {
@@ -281,12 +281,12 @@
                         : filteredTransactions.OrderByDescending(t => t.Timestamp).ToList(),
 
             "type" =>
-                sortAsc ? filteredTransactions.OrderBy(t => t.QuantityChange > 0).ToList()
-                        : filteredTransactions.OrderByDescending(t => t.QuantityChange > 0).ToList(),
+                sortAsc ? filteredTransactions.OrderBy(t => t.IsIncrease).ToList()
+                        : filteredTransactions.OrderByDescending(t => t.IsIncrease).ToList(),
 
             "qty" =>
-                sortAsc ? filteredTransactions.OrderBy(t => Math.Abs(t.QuantityChange)).ToList()
-                        : filteredTransactions.OrderByDescending(t => Math.Abs(t.QuantityChange)).ToList(),
+                sortAsc ? filteredTransactions.OrderBy(t => t.Quantity).ToList()
+                        : filteredTransactions.OrderByDescending(t => t.Quantity).ToList(),
 
             _ => filteredTransactions
         };

@@ -1,0 +1,185 @@
+@using Inventory.Client.Models.Inventory
+@using Inventory.Client.Models.Items
+@using Inventory.Client.Models.Transactions
+@using Inventory.Client.Services.Dashboard
+
+@inject DashboardService DashboardService
+
+@if (_isLoading)
+{
+    <LoadingSpinner Text="Loading dashboard metrics..." />
+}
+else
+{
+    <RadzenRow Gap="1rem">
+
+        <!-- Total Items -->
+
+        <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0 h-100">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted text-uppercase fw-semibold">
+                            Total Items
+                        </small>
+
+                        <h3 class="fw-bold mb-0">
+                            @_totalItems
+                        </h3>
+
+                    </div>
+
+                    <RadzenIcon Icon="inventory_2"
+                                class="fs-1 text-primary opacity-75" />
+
+                </div>
+
+            </RadzenCard>
+
+        </RadzenColumn>
+
+        <!-- Low Stock -->
+
+        <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0 h-100">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted text-uppercase fw-semibold">
+                            Low Stock
+                        </small>
+
+                        <h3 class="fw-bold mb-0 text-warning">
+                            @_lowStockCount
+                        </h3>
+
+                    </div>
+
+                    <RadzenIcon Icon="warning"
+                                class="fs-1 text-warning opacity-75" />
+
+                </div>
+
+            </RadzenCard>
+
+        </RadzenColumn>
+
+        <!-- Inventory Value -->
+
+        <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0 h-100">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted text-uppercase fw-semibold">
+                            Inventory Value
+                        </small>
+
+                        <h3 class="fw-bold mb-0 text-success">
+                           @($"R {_inventoryValue:N2}")
+                        </h3>
+
+                    </div>
+
+                    <RadzenIcon Icon="payments"
+                                class="fs-1 text-success opacity-75" />
+
+                </div>
+
+            </RadzenCard>
+
+        </RadzenColumn>
+
+        <!-- Recent Transactions -->
+
+        <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0 h-100">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted text-uppercase fw-semibold">
+                            Transactions
+                        </small>
+
+                        <h3 class="fw-bold mb-0 text-primary">
+                            @_recentTransactionsCount
+                        </h3>
+
+                    </div>
+
+                    <RadzenIcon Icon="sync_alt"
+                                class="fs-1 text-primary opacity-75" />
+
+                </div>
+
+            </RadzenCard>
+
+        </RadzenColumn>
+
+    </RadzenRow>
+}
+
+@code {
+
+    private bool _isLoading = true;
+
+    private int _totalItems;
+
+    private int _lowStockCount;
+
+    private decimal _inventoryValue;
+
+    private int _recentTransactionsCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+
+        var items =
+            await DashboardService
+                .GetAllItemsAsync();
+
+        var summary =
+            await DashboardService
+                .GetSummaryAsync();
+
+        var lowStock =
+            await DashboardService
+                .GetLowStockAsync();
+
+        var transactions =
+            await DashboardService
+                .GetRecentTransactionsAsync();
+
+        _totalItems =
+            items.Count;
+
+        _lowStockCount =
+            lowStock.Count;
+
+        _inventoryValue =
+            summary?.TotalInventoryValue ?? 0;
+
+        _recentTransactionsCount =
+            transactions.Count;
+
+        _isLoading = false;
+    }
+}

@@ -44,8 +44,8 @@ else
                     <th @onclick="()=>SortBy(nameof(ItemResponseDto.Name))"
                         style="cursor:pointer">Name @SortIcon(nameof(ItemResponseDto.Name))</th>
 
-                    <th @onclick="()=>SortBy(nameof(ItemResponseDto.UnitPrice))"
-                        style="cursor:pointer">Price @SortIcon(nameof(ItemResponseDto.UnitPrice))</th>
+                    <th @onclick="()=>SortBy(nameof(ItemResponseDto.SellingPrice))"
+                        style="cursor:pointer">Price @SortIcon(nameof(ItemResponseDto.SellingPrice))</th>
 
                     <th @onclick="()=>SortBy(nameof(ItemResponseDto.OnHand))"
                         style="cursor:pointer">On Hand @SortIcon(nameof(ItemResponseDto.OnHand))</th>
@@ -60,7 +60,7 @@ else
                     <tr>
                         <td>@item.SKU</td>
                         <td>@item.Name</td>
-                        <td>R @item.UnitPrice</td>
+                        <td>R @item.SellingPrice</td>
                         <td>@item.OnHand</td>
                         <td>
                             <button class="btn btn-sm btn-outline-secondary me-2"
@@ -174,7 +174,7 @@ else
         ApplyFilters();
     }
 
-    private async Task SearchChanged(ChangeEventArgs e)
+    private void SearchChanged(ChangeEventArgs e)
     {
         searchText = e.Value?.ToString() ?? "";
         ApplyFilters();
@@ -201,7 +201,7 @@ else
         {
             nameof(ItemResponseDto.SKU) => sortAsc ? query.OrderBy(i => i.SKU) : query.OrderByDescending(i => i.SKU),
             nameof(ItemResponseDto.Name) => sortAsc ? query.OrderBy(i => i.Name) : query.OrderByDescending(i => i.Name),
-            nameof(ItemResponseDto.UnitPrice) => sortAsc ? query.OrderBy(i => i.UnitPrice) : query.OrderByDescending(i => i.UnitPrice),
+            nameof(ItemResponseDto.SellingPrice) => sortAsc ? query.OrderBy(i => i.SellingPrice) : query.OrderByDescending(i => i.SellingPrice),
             nameof(ItemResponseDto.OnHand) => sortAsc ? query.OrderBy(i => i.OnHand) : query.OrderByDescending(i => i.OnHand),
             _ => query
         };

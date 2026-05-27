@@ -1,16 +1,31 @@
+using System.Text.Json;
+using Microsoft.JSInterop;
 using Inventory.Client.Models.Auth;
 
 namespace Inventory.Client.Services.Auth;
 
 public class AuthService : IAuthService
 {
+    private const string SessionKey = "auth_user";
+
+    private readonly IJSRuntime _js;
+
     private AppUser? _currentUser;
 
-    public bool IsAuthenticated => _currentUser is not null;
-
-    public Task<LoginResponseDto> LoginAsync(LoginRequestDto request)
+    public AuthService(
+        IJSRuntime js)
     {
-        if (request.Username == "owner" && request.Password == "owner123")
+        _js = js;
+    }
+
+    public bool IsAuthenticated =>
+        _currentUser is not null;
+
+    public async Task<LoginResponseDto> LoginAsync(
+        LoginRequestDto request)
+    {
+        if (request.Username == "owner" &&
+            request.Password == "owner123")
         {
             _currentUser = new AppUser
             {
@@ -21,14 +36,17 @@ public class AuthService : IAuthService
                 RoleType = RoleType.Owner
             };
 
-            return Task.FromResult(new LoginResponseDto
+            await SaveUserSessionAsync();
+
+            return new LoginResponseDto
             {
                 IsAuthenticated = true,
                 User = _currentUser
-            });
+            };
         }
 
-        if (request.Username == "cashier" && request.Password == "cashier123")
+        if (request.Username == "cashier" &&
+            request.Password == "cashier123")
         {
             _currentUser = new AppUser
             {
@@ -39,14 +57,17 @@ public class AuthService : IAuthService
                 RoleType = RoleType.Cashier
             };
 
-            return Task.FromResult(new LoginResponseDto
+            await SaveUserSessionAsync();
+
+            return new LoginResponseDto
             {
                 IsAuthenticated = true,
                 User = _currentUser
-            });
+            };
         }
 
-        if (request.Username == "clerk" && request.Password == "clerk123")
+        if (request.Username == "clerk" &&
+            request.Password == "clerk123")
         {
             _currentUser = new AppUser
             {
@@ -57,28 +78,60 @@ public class AuthService : IAuthService
                 RoleType = RoleType.StockClerk
             };
 
-            return Task.FromResult(new LoginResponseDto
+            await SaveUserSessionAsync();
+
+            return new LoginResponseDto
             {
                 IsAuthenticated = true,
                 User = _currentUser
-            });
+            };
         }
 
-        return Task.FromResult(new LoginResponseDto
+        return new LoginResponseDto
         {
             IsAuthenticated = false,
             ErrorMessage = "Invalid username or password."
-        });
+        };
     }
 
-    public Task LogoutAsync()
+    public async Task LogoutAsync()
     {
         _currentUser = null;
-        return Task.CompletedTask;
+
+        await _js.InvokeVoidAsync(
+            "sessionStorage.removeItem",
+            SessionKey);
     }
 
-    public Task<AppUser?> GetCurrentUserAsync()
+    public async Task<AppUser?> GetCurrentUserAsync()
     {
-        return Task.FromResult(_currentUser);
+        if (_currentUser is not null)
+            return _currentUser;
+
+        var json =
+            await _js.InvokeAsync<string?>(
+                "sessionStorage.getItem",
+                SessionKey);
+
+        if (string.IsNullOrWhiteSpace(json))
+            return null;
+
+        _currentUser =
+            JsonSerializer.Deserialize<AppUser>(
+                json);
+
+        return _currentUser;
+    }
+
+    private async Task SaveUserSessionAsync()
+    {
+        var json =
+            JsonSerializer.Serialize(
+                _currentUser);
+
+        await _js.InvokeVoidAsync(
+            "sessionStorage.setItem",
+            SessionKey,
+            json);
     }
 }
