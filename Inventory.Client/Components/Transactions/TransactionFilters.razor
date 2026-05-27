@@ -1,0 +1,118 @@
+<RadzenCard class="mb-4">
+
+    <div class="row g-3 align-items-end">
+
+        <div class="col-md-4">
+            <label class="form-label">Search</label>
+
+            <RadzenTextBox
+                Style="width: 100%;"
+                Placeholder="Reference or notes..."
+                Value="@Search"
+                Change="@OnSearchChanged" />
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Movement Type</label>
+
+            <RadzenDropDown
+                Style="width: 100%;"
+                Data="@MovementTypes"
+                TextProperty="Text"
+                ValueProperty="Value"
+                TValue="string"
+                Placeholder="All Movements"
+                Value="@TransactionType"
+                Change="@OnTypeChanged" />
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Date Range</label>
+
+            <RadzenDropDown
+                Style="width: 100%;"
+                Data="@DateRanges"
+                TextProperty="Text"
+                ValueProperty="Value"
+                TValue="string"
+                Placeholder="All Dates"
+                Value="@DateFilter"
+                Change="@OnDateChanged" />
+        </div>
+
+        <div class="col-md-2">
+            <RadzenButton
+                Text="Clear"
+                Icon="close"
+                ButtonStyle="ButtonStyle.Light"
+                Click="@ClearFilters"
+                Style="width: 100%;" />
+        </div>
+
+    </div>
+
+</RadzenCard>
+
+@code {
+
+    [Parameter]
+    public string Search { get; set; } = "";
+
+    [Parameter]
+    public string TransactionType { get; set; } = "";
+
+    [Parameter]
+    public string DateFilter { get; set; } = "";
+
+    [Parameter]
+    public EventCallback<string> SearchChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<string> TransactionTypeChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<string> DateFilterChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnClear { get; set; }
+
+    private readonly List<object> MovementTypes = new()
+    {
+        new { Text = "Stock In", Value = "1" },
+        new { Text = "Stock Out", Value = "2" }
+    };
+
+    private readonly List<object> DateRanges = new()
+    {
+        new { Text = "Today", Value = "today" },
+        new { Text = "Last 7 Days", Value = "7" },
+        new { Text = "Last 30 Days", Value = "30" }
+    };
+
+    private async Task OnSearchChanged(object value)
+    {
+        Search = value?.ToString() ?? "";
+        await SearchChanged.InvokeAsync(Search);
+    }
+
+    private async Task OnTypeChanged(object value)
+    {
+        TransactionType = value?.ToString() ?? "";
+        await TransactionTypeChanged.InvokeAsync(TransactionType);
+    }
+
+    private async Task OnDateChanged(object value)
+    {
+        DateFilter = value?.ToString() ?? "";
+        await DateFilterChanged.InvokeAsync(DateFilter);
+    }
+
+    private async Task ClearFilters()
+    {
+        Search = "";
+        TransactionType = "";
+        DateFilter = "";
+
+        await OnClear.InvokeAsync();
+    }
+}

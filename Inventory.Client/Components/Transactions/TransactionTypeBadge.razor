@@ -1,0 +1,26 @@
+@using Inventory.Client.Models.Transactions
+
+<div class="@BadgeClass">
+    <i class="@IconClass me-2"></i>
+    @DisplayText
+</div>
+
+@code {
+
+    [Parameter]
+    public int TransactionType { get; set; }
+
+    private bool IsIn => TransactionType == 1;
+
+    private string DisplayText =>
+        IsIn ? "Stock In" : "Stock Out";
+
+    private string IconClass =>
+        IsIn ? "bi bi-arrow-down-circle-fill"
+             : "bi bi-arrow-up-circle-fill";
+
+    private string BadgeClass =>
+        IsIn
+            ? "transaction-badge transaction-badge-in"
+            : "transaction-badge transaction-badge-out";
+}

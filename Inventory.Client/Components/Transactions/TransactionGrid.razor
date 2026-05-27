@@ -1,0 +1,92 @@
+@using Inventory.Client.Models.Transactions
+
+<RadzenDataGrid
+    Data="@Transactions"
+    TItem="StockTransactionDto"
+    AllowPaging="true"
+    AllowSorting="true"
+    PageSize="10"
+    Responsive="true"
+    Class="border rounded">
+
+    <Columns>
+
+        <RadzenDataGridColumn TItem="StockTransactionDto"
+                              Property="Timestamp"
+                              Title="Date">
+
+            <Template Context="tx">
+                <div class="d-flex flex-column">
+                    <span class="fw-semibold">
+                        @tx.Timestamp.ToLocalTime().ToString("dd MMM yyyy")
+                    </span>
+
+                    <small class="text-muted">
+                        @tx.Timestamp.ToLocalTime().ToString("HH:mm")
+                    </small>
+                </div>
+            </Template>
+
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn TItem="StockTransactionDto"
+                              Title="Movement">
+
+            <Template Context="tx">
+                <TransactionTypeBadge
+                    TransactionType="@tx.TransactionType" />
+            </Template>
+
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn TItem="StockTransactionDto"
+                              Property="ItemName"
+                              Title="Product" />
+
+        <RadzenDataGridColumn TItem="StockTransactionDto"
+                              Property="Quantity"
+                              Title="Quantity">
+
+            <Template Context="tx">
+                <span class="fw-semibold">
+                    @tx.Quantity
+                </span>
+            </Template>
+
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn TItem="StockTransactionDto"
+                              Property="ReferenceNumber"
+                              Title="Reference" />
+
+        <RadzenDataGridColumn TItem="StockTransactionDto"
+                              Property="Notes"
+                              Title="Notes">
+
+            <Template Context="tx">
+
+                @if (string.IsNullOrWhiteSpace(tx.Notes))
+                {
+                    <span class="text-muted">
+                        —
+                    </span>
+                }
+                else
+                {
+                    @tx.Notes
+                }
+
+            </Template>
+
+        </RadzenDataGridColumn>
+
+    </Columns>
+
+</RadzenDataGrid>
+
+@code {
+
+    [Parameter]
+    public IEnumerable<StockTransactionDto> Transactions { get; set; }
+        = Enumerable.Empty<StockTransactionDto>();
+}

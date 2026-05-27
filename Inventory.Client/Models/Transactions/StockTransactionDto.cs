@@ -1,3 +1,5 @@
+using Inventory.Client.Models.Items;
+
 namespace Inventory.Client.Models.Transactions;
 
 public class StockTransactionDto
@@ -5,9 +7,11 @@ public class StockTransactionDto
     public int Id { get; set; }
 
     public int ItemId { get; set; }
+    public ItemResponseDto? Item { get; set; }
 
-    public string ItemName { get; set; } = string.Empty;
+    public string ItemName => Item?.Name ?? string.Empty;
 
+    
     public int Quantity { get; set; }
 
     public int TransactionType { get; set; }
