@@ -12,106 +12,174 @@ public class ItemsController : ControllerBase
     private readonly IItemRepository _itemRepository;
     private readonly IInventoryService _inventoryService;
 
-    public ItemsController(IItemRepository itemRepository, IInventoryService inventoryService)
+    public ItemsController(
+        IItemRepository itemRepository,
+        IInventoryService inventoryService)
     {
         _itemRepository = itemRepository;
         _inventoryService = inventoryService;
     }
 
-    // GET: api/items
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var items = await _itemRepository.GetAllAsync();
+        var items =
+            await _itemRepository.GetActiveItemsAsync();
 
-        var results = new List<ItemResponseDto>();
+        var results =
+            new List<ItemResponseDto>();
 
         foreach (var item in items)
         {
-            var onHand = await _inventoryService.GetOnHandQuantityAsync(item.Id);
+            var onHand =
+                await _inventoryService
+                    .GetOnHandQuantityAsync(
+                        item.Id);
 
-            results.Add(new ItemResponseDto
-            {
-                Id = item.Id,
-                SKU = item.SKU,
-                Name = item.Name,
-                UnitPrice = item.UnitPrice,
-                LowStockThreshold = item.LowStockThreshold,
-                OnHand = onHand
-            });
+            results.Add(
+                new ItemResponseDto
+                {
+                    Id = item.Id,
+                    SKU = item.SKU,
+                    Name = item.Name,
+                    CostPrice = item.CostPrice,
+                    SellingPrice = item.SellingPrice,
+                    LowStockThreshold =
+                        item.LowStockThreshold,
+                    SupplierId =
+                        item.SupplierId,
+                    OnHand = onHand
+                });
         }
 
         return Ok(results);
     }
 
-    // GET: api/items/{id}
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> Get(int id)
+    public async Task<IActionResult> Get(
+        int id)
     {
-        var item = await _itemRepository.GetByIdAsync(id);
-        if (item == null) return NotFound();
+        var item =
+            await _itemRepository.GetByIdAsync(id);
 
-        var onHand = await _inventoryService.GetOnHandQuantityAsync(id);
+        if (item is null)
+            return NotFound();
 
-        return Ok(new ItemResponseDto
-        {
-            Id = item.Id,
-            SKU = item.SKU,
-            Name = item.Name,
-            UnitPrice = item.UnitPrice,
-            LowStockThreshold = item.LowStockThreshold,
-            OnHand = onHand
-        });
+        var onHand =
+            await _inventoryService
+                .GetOnHandQuantityAsync(id);
+
+        return Ok(
+            new ItemResponseDto
+            {
+                Id = item.Id,
+                SKU = item.SKU,
+                Name = item.Name,
+                CostPrice = item.CostPrice,
+                SellingPrice = item.SellingPrice,
+                LowStockThreshold =
+                    item.LowStockThreshold,
+                SupplierId =
+                    item.SupplierId,
+                OnHand = onHand
+            });
     }
 
-    // POST: api/items
     [HttpPost]
-    public async Task<IActionResult> Create(ItemCreateDto dto)
+    public async Task<IActionResult> Create(
+        ItemCreateDto dto)
     {
-        var existing = await _itemRepository.GetBySKUAsync(dto.SKU);
-        if (existing != null)
-            return Conflict(new { message = "SKU already exists." });
+        var existing =
+            await _itemRepository
+                .GetBySKUAsync(dto.SKU);
+
+        if (existing is not null)
+        {
+            return Conflict(
+                new
+                {
+                    message =
+                        "SKU already exists."
+                });
+        }
 
         var item = new Item
         {
             SKU = dto.SKU,
             Name = dto.Name,
-            UnitPrice = dto.UnitPrice,
-            LowStockThreshold = dto.LowStockThreshold
+            CostPrice = dto.CostPrice,
+            SellingPrice = dto.SellingPrice,
+            LowStockThreshold =
+                dto.LowStockThreshold,
+
+            // THIS was missing
+            SupplierId =
+                dto.SupplierId
         };
 
-        await _itemRepository.AddAsync(item);
-        await _itemRepository.SaveChangesAsync();
+        await _itemRepository
+            .AddAsync(item);
 
-        return CreatedAtAction(nameof(Get), new { id = item.Id }, item);
+        await _itemRepository
+            .SaveChangesAsync();
+
+        return CreatedAtAction(
+            nameof(Get),
+            new { id = item.Id },
+            item);
     }
 
-    // PUT: api/items/{id}
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, ItemUpdateDto dto)
+    public async Task<IActionResult> Update(
+        int id,
+        ItemUpdateDto dto)
     {
-        var item = await _itemRepository.GetByIdAsync(id);
-        if (item == null) return NotFound();
+        var item =
+            await _itemRepository
+                .GetByIdAsync(id);
 
-        item.Name = dto.Name;
-        item.UnitPrice = dto.UnitPrice;
-        item.LowStockThreshold = dto.LowStockThreshold;
+        if (item is null)
+            return NotFound();
 
-        await _itemRepository.UpdateAsync(item);
-        await _itemRepository.SaveChangesAsync();
+        item.Name =
+            dto.Name;
+
+        item.CostPrice =
+            dto.CostPrice;
+
+        item.SellingPrice =
+            dto.SellingPrice;
+
+        item.LowStockThreshold =
+            dto.LowStockThreshold;
+
+        await _itemRepository
+            .UpdateAsync(item);
+
+        await _itemRepository
+            .SaveChangesAsync();
 
         return NoContent();
     }
 
-    // DELETE: api/items/{id}
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(
+        int id)
     {
-        var item = await _itemRepository.GetByIdAsync(id);
-        if (item == null) return NotFound();
+        var item =
+            await _itemRepository
+                .GetByIdAsync(id);
 
-        await _itemRepository.DeleteAsync(item);
-        await _itemRepository.SaveChangesAsync();
+        if (item is null)
+            return NotFound();
+
+        item.IsActive = false;
+
+        await _itemRepository
+            .UpdateAsync(item);
+
+        await _itemRepository
+            .SaveChangesAsync();
 
         return NoContent();
     }

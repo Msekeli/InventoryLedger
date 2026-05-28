@@ -1,82 +1,158 @@
 using Inventory.Application.Interfaces;
+using Inventory.Api.Models.Inventory;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inventory.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class InventoryController : ControllerBase
+public class InventoryController
+    : ControllerBase
 {
-    private readonly IInventoryService _inventoryService;
-    private readonly IItemRepository _itemRepository;
+    private readonly
+        IInventoryService
+        _inventoryService;
 
-    public InventoryController(IInventoryService inventoryService, IItemRepository itemRepository)
+    private readonly
+        IItemRepository
+        _itemRepository;
+
+    private readonly
+        IStockTransactionRepository
+        _transactionRepository;
+
+    public InventoryController(
+        IInventoryService
+            inventoryService,
+        IItemRepository
+            itemRepository,
+        IStockTransactionRepository
+            transactionRepository)
     {
-        _inventoryService = inventoryService;
-        _itemRepository = itemRepository;
+        _inventoryService =
+            inventoryService;
+
+        _itemRepository =
+            itemRepository;
+
+        _transactionRepository =
+            transactionRepository;
     }
 
-    // GET: api/inventory/summary?lowStockOnly=true
     [HttpGet("summary")]
-    public async Task<IActionResult> GetSummary([FromQuery] bool lowStockOnly = false)
+    public async Task<IActionResult>
+        GetSummary(
+            [FromQuery]
+            bool lowStockOnly = false)
     {
-        var items = await _itemRepository.GetAllAsync();
-        var results = new List<object>();
-        decimal totalValue = 0;
+        var summaryRows =
+            await _transactionRepository
+                .GetInventorySummaryAsync();
 
-        foreach (var item in items)
+        var items =
+            await _itemRepository
+                .GetAllAsync();
+
+        var itemsById =
+            items.ToDictionary(
+                item => item.Id);
+
+        var summary =
+            summaryRows
+                .Select(row =>
+                {
+                    itemsById.TryGetValue(
+                        row.Id,
+                        out var item);
+
+                    return new InventoryItemDto
+                    {
+                        Id = row.Id,
+                        SKU = row.SKU,
+                        Name = row.Name,
+                        OnHand = row.CurrentStock,
+                        LowStockThreshold = item?.LowStockThreshold ?? 0,
+                        UnitCostPrice = row.CostPrice,
+                        InventoryCostValue = row.InventoryCostValue
+                    };
+                })
+                .ToList();
+
+        if (lowStockOnly)
         {
-            int onHand = await _inventoryService.GetOnHandQuantityAsync(item.Id);
-            decimal value = item.UnitPrice * onHand;
-
-            bool isLow = onHand <= item.LowStockThreshold;
-
-            if (lowStockOnly && !isLow)
-                continue;
-
-            results.Add(new
-            {
-                item.Id,
-                item.SKU,
-                item.Name,
-                item.UnitPrice,
-                OnHand = onHand,
-                Value = value,
-                item.LowStockThreshold,
-                IsLowStock = isLow
-            });
-
-            totalValue += value;
+            summary =
+                summary
+                    .Where(
+                        x => x.IsLowStock)
+                    .ToList();
         }
 
-        return Ok(new
-        {
-            TotalInventoryValue = totalValue,
-            Items = results
-        });
+        return Ok(
+            new InventorySummaryDto
+            {
+                TotalInventoryValue = summary
+                    .Sum(x => x.InventoryCostValue),
+
+                Items = summary
+            });
     }
 
-    // GET: api/inventory/{itemId}/stock
     [HttpGet("{itemId:int}/stock")]
-    public async Task<IActionResult> GetStock(int itemId)
+    public async Task<IActionResult>
+        GetStock(
+            int itemId)
     {
-        var stock = await _inventoryService.GetOnHandQuantityAsync(itemId);
-        return Ok(stock);
+        var stock =
+            await _inventoryService
+                .GetOnHandQuantityAsync(
+                    itemId);
+
+        return Ok(
+            stock);
     }
 
-    // GET: api/inventory/{itemId}/value
     [HttpGet("{itemId:int}/value")]
-    public async Task<IActionResult> GetValue(int itemId)
+    public async Task<IActionResult>
+        GetValue(
+            int itemId)
     {
-        var value = await _inventoryService.GetInventoryValueAsync(itemId);
-        return Ok(value);
+        var value =
+            await _inventoryService
+                .GetInventoryValueAsync(
+                    itemId);
+
+        return Ok(
+            value);
     }
 
-    // GET: api/inventory/low-stock
-    [HttpGet("low-stock")]
-    public async Task<IActionResult> GetLowStock()
+[HttpGet("low-stock")]
+public async Task<IActionResult>
+    GetLowStock()
+{
+    var lowStockRows =
+        await _transactionRepository
+            .GetLowStockItemsAsync();
+
+    var results =
+            new List<InventoryItemDto>();
+
+    foreach (var item in lowStockRows)
     {
-        var items = await _inventoryService.GetLowStockItemsAsync();
-        return Ok(items);
+        var onHand =
+            await _inventoryService
+                .GetOnHandQuantityAsync(item.Id);
+
+        results.Add(
+                new InventoryItemDto
+            {
+                    Id = item.Id,
+                SKU = item.SKU,
+                Name = item.Name,
+                OnHand = onHand,
+                    LowStockThreshold = item.LowStockThreshold
+            });
     }
+
+    return Ok(results);
+}
 }

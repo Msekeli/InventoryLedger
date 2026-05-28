@@ -1,0 +1,39 @@
+@page "/dashboard"
+@using Inventory.Client.Models.Auth
+@using Inventory.Client.Services.Auth
+@using Inventory.Client.Components.Dashboard
+@inject IAuthService AuthService
+
+<h2 class="mb-4">Dashboard</h2>
+
+@if (_isLoading)
+{
+    <LoadingSpinner Text="Loading dashboard..." />
+}
+else if (CurrentUser is null)
+{
+    <p>User not found.</p>
+}
+else if (CurrentUser.RoleType == RoleType.Owner)
+{
+    <OwnerDashboard />
+}
+else if (CurrentUser.RoleType == RoleType.Cashier)
+{
+    <CashierDashboard />
+}
+else if (CurrentUser.RoleType == RoleType.StockClerk)
+{
+    <StockClerkDashboard />
+}
+
+@code {
+    private AppUser? CurrentUser;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        CurrentUser = await AuthService.GetCurrentUserAsync();
+        _isLoading = false;
+    }
+}

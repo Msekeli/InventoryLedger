@@ -1,55 +1,157 @@
 ﻿@inherits LayoutComponentBase
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@using Inventory.Client.Models.Auth
+@using Inventory.Client.Services.Auth
 
-<nav class="navbar navbar-expand-lg" style="background:#2c2c2c; border-bottom:3px solid #ff8a3d;">
-    <div class="container-fluid px-5">
+<div class="app-shell">
 
-        <a class="navbar-brand fw-bold text-warning" href="/">
-            Inventory Ledger
-        </a>
+    <!-- SIDEBAR -->
+    <aside class="app-sidebar">
 
-        <div class="collapse navbar-collapse show">
-            <ul class="navbar-nav ms-auto d-flex align-items-center gap-2">
+        <RadzenPanelMenu Style="border:none;">
 
-                <li class="nav-item">
-                    <NavLink href="/"
-                             Match="NavLinkMatch.All"
-                             class="btn btn-dark text-white fw-bold px-3"
-                             activeClass="btn btn-outline-warning fw-bold px-3">
-                        Dashboard
-                    </NavLink>
-                </li>
+            <RadzenPanelMenuItem Text="Dashboard"
+                                 Icon="dashboard"
+                                 Path="/dashboard" />
 
-                <li class="nav-item">
-                    <NavLink href="/items"
-                             class="btn btn-dark text-white fw-bold px-3"
-                             activeClass="btn btn-outline-warning fw-bold px-3">
-                        Items
-                    </NavLink>
-                </li>
+            <RadzenPanelMenuItem Text="Items"
+                                 Icon="inventory_2"
+                                 Path="/items"
+                                 Disabled="!CanAccessItems" />
 
-                <li class="nav-item">
-                    <NavLink href="/transactions"
-                             class="btn btn-dark text-white fw-bold px-3"
-                             activeClass="btn btn-outline-warning fw-bold px-3">
-                        Transactions
-                    </NavLink>
-                </li>
+            <RadzenPanelMenuItem Text="Transactions"
+                                 Icon="receipt_long"
+                                 Path="/transactions"
+                                 Disabled="!CanAccessTransactions" />
 
-                <li class="nav-item">
-                    <NavLink href="/inventory"
-                             class="btn btn-dark text-white fw-bold px-3"
-                             activeClass="btn btn-outline-warning fw-bold px-3">
-                        Inventory Summary
-                    </NavLink>
-                </li>
+            <RadzenPanelMenuItem Text="Low Stock"
+                                 Icon="warning"
+                                 Path="/low-stock"
+                                 Disabled="!CanAccessLowStock" />
 
-            </ul>
+            <RadzenPanelMenuItem Text="Inventory Summary"
+                                 Icon="analytics"
+                                 Path="/inventory-summary"
+                                 Disabled="!CanAccessInventorySummary" />
+
+            <RadzenPanelMenuItem Text="Suppliers"
+                                 Icon="local_shipping"
+                                 Path="/suppliers"
+                                 Disabled="!CanAccessSuppliers" />
+
+            <RadzenPanelMenuItem Text="Reports"
+                                 Icon="assessment"
+                                 Path="/reports"
+                                 Disabled="!CanAccessReports" />
+
+            <RadzenPanelMenuItem Text="User Management"
+                                 Icon="group"
+                                 Path="/users"
+                                 Disabled="!CanAccessUsers" />
+
+        </RadzenPanelMenu>
+
+    </aside>
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+
+        <!-- LEFT BRAND -->
+        <div class="header-brand">
+            <div>
+                <h4>Spaza Stock Manager</h4>
+                <small>Inventory ERP</small>
+            </div>
         </div>
 
-    </div>
-</nav>
+        <!-- RIGHT USER -->
+        <div class="top-header-user">
 
-<main class="container-fluid d-flex flex-column min-vh-100 py-4">
-    @Body
-</main>
+            <RadzenBadge Text="@CurrentRole"
+                         Shade="Shade.Light"
+                         Variant="Variant.Flat" />
 
+            <span class="fw-semibold">
+                @CurrentUserName
+            </span>
+
+            <RadzenButton Text="Logout"
+                          Icon="logout"
+                          ButtonStyle="ButtonStyle.Light"
+                          Click="Logout" />
+
+        </div>
+
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="app-content">
+        @Body
+    </main>
+
+</div>
+
+@code {
+
+    private AppUser? CurrentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        CurrentUser = await AuthService.GetCurrentUserAsync();
+    }
+
+    // ROLES
+
+    private bool IsOwner =>
+        CurrentUser?.RoleType == RoleType.Owner;
+
+    private bool IsCashier =>
+        CurrentUser?.RoleType == RoleType.Cashier;
+
+    private bool IsStockClerk =>
+        CurrentUser?.RoleType == RoleType.StockClerk;
+
+    // PERMISSIONS
+
+    private bool CanAccessItems =>
+        IsOwner || IsCashier || IsStockClerk;
+
+    private bool CanAccessTransactions =>
+    IsOwner || IsCashier || IsStockClerk;
+
+    private bool CanAccessLowStock =>
+        IsOwner || IsStockClerk;
+
+    private bool CanAccessInventorySummary =>
+        IsOwner || IsStockClerk;
+
+    private bool CanAccessSuppliers =>
+        IsOwner || IsStockClerk;
+
+    private bool CanAccessReports =>
+        IsOwner;
+
+    private bool CanAccessUsers =>
+        IsOwner;
+
+    // USER DISPLAY
+
+    private string CurrentUserName =>
+        CurrentUser is null
+            ? "Guest"
+            : $"{CurrentUser.FirstName} {CurrentUser.LastName}";
+
+    private string CurrentRole =>
+        CurrentUser?.RoleType.ToString() ?? "Guest";
+
+    // LOGOUT
+
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+
+        Navigation.NavigateTo("/login");
+    }
+
+}

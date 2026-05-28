@@ -1,69 +1,115 @@
 using Inventory.Api.Models.Transactions;
 using Inventory.Application.Interfaces;
-using Inventory.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inventory.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class StockTransactionsController : ControllerBase
+public class StockTransactionsController
+    : ControllerBase
 {
-    private readonly IStockTransactionRepository _transactionRepository;
-    private readonly IItemRepository _itemRepository;
+    private readonly
+        IStockTransactionRepository
+        _transactionRepository;
+
+    private readonly
+        IItemRepository
+        _itemRepository;
 
     public StockTransactionsController(
-        IStockTransactionRepository transactionRepository,
-        IItemRepository itemRepository)
+        IStockTransactionRepository
+            transactionRepository,
+        IItemRepository
+            itemRepository)
     {
-        _transactionRepository = transactionRepository;
-        _itemRepository = itemRepository;
+        _transactionRepository =
+            transactionRepository;
+
+        _itemRepository =
+            itemRepository;
     }
 
-    // GET: api/stocktransactions/1
     [HttpGet("{itemId:int}")]
-    public async Task<IActionResult> GetByItem(int itemId)
+    public async Task<IActionResult>
+        GetByItem(
+            int itemId)
     {
-        var transactions = await _transactionRepository.GetByItemIdAsync(itemId);
-        return Ok(transactions);
+        var transactions =
+            await _transactionRepository
+                .GetByItemIdAsync(
+                    itemId);
+
+        return Ok(
+            transactions);
     }
 
-    // POST: api/stocktransactions
-    [HttpPost]
-    public async Task<IActionResult> Create(StockTransactionCreateDto dto)
+    [HttpGet("recent")]
+    public async Task<IActionResult>
+        GetRecent(
+            [FromQuery]
+            int take = 10)
     {
-        // 1. Basic validation
-        if (dto.Quantity <= 0)
-            return BadRequest(new { message = "Quantity must be > 0" });
+        var transactions =
+            await _transactionRepository
+                .GetAllAsync();
 
-        // 2. Ensure Item exists
-        var item = await _itemRepository.GetByIdAsync(dto.ItemId);
-        if (item == null)
-            return NotFound(new { message = "Item not found." });
+        var recent =
+            transactions
+                .OrderByDescending(
+                    x => x.Timestamp)
+                .Take(take)
+                .ToList();
 
-        // 3. Validate IN/OUT type and calculate QuantityChange
-        int quantityChange = dto.Type?.ToUpper() switch
+        return Ok(
+            recent);
+    }
+
+    [HttpPost("receive-stock")]
+    public async Task<IActionResult>
+        ReceiveStock(
+            StockTransactionCreateDto dto)
+    {
+        if (
+            dto.Quantity <= 0)
         {
-            "IN" => dto.Quantity,
-            "OUT" => -dto.Quantity,
-            _ => 0
-        };
+            return BadRequest(
+                new
+                {
+                    message =
+                        "Quantity must be greater than zero."
+                });
+        }
 
-        if (quantityChange == 0)
-            return BadRequest(new { message = "Invalid type. Use IN or OUT." });
+        var item =
+            await _itemRepository
+                .GetByIdAsync(
+                    dto.ItemId);
 
-        // 4. Create transaction
-        var transaction = new StockTransaction
+        if (
+            item is null)
         {
-            ItemId = dto.ItemId,
-            QuantityChange = quantityChange,
-            Reference = dto.Remarks,
-            Timestamp = DateTime.UtcNow
-        };
+            return NotFound(
+                new
+                {
+                    message =
+                        "Item not found."
+                });
+        }
 
-        await _transactionRepository.AddAsync(transaction);
-        await _transactionRepository.SaveChangesAsync();
+        await _transactionRepository
+            .ReceiveStockAsync(
+                dto.ItemId,
+                dto.Quantity,
+                "API-STOCK",
+                "Stock received from API",
+                1);
 
-        return Ok(transaction);
+        return Ok(
+            new
+            {
+                message =
+                    "Stock received successfully."
+            });
     }
 }

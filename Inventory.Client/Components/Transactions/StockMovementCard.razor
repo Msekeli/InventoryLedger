@@ -1,0 +1,49 @@
+@using Inventory.Client.Models.Transactions
+
+<div class="d-flex align-items-start justify-content-between border rounded p-3">
+
+    <div class="d-flex align-items-start gap-3">
+
+        <div>
+            <TransactionTypeBadge TransactionType="@Transaction.TransactionType" />
+        </div>
+
+        <div>
+
+            <div class="fw-semibold">
+                @MovementText
+            </div>
+
+            <div class="text-muted small">
+                Ref: @Transaction.ReferenceNumber
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Transaction.Notes))
+            {
+                <div class="text-muted small mt-1">
+                    @Transaction.Notes
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+    <div class="text-end small text-muted">
+        @Transaction.Timestamp.ToLocalTime().ToString("dd MMM HH:mm")
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public StockTransactionDto Transaction { get; set; } = default!;
+
+    private bool IsIn => Transaction.TransactionType == 1;
+
+    private string MovementText =>
+        IsIn
+            ? $"Received {Transaction.Quantity} {Transaction.ItemName}"
+            : $"Sold {Transaction.Quantity} {Transaction.ItemName}";
+}

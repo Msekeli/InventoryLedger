@@ -1,0 +1,39 @@
+@using Inventory.Client.Components.Dashboard
+
+<div class="d-flex flex-column gap-4">
+
+    <!-- KPI STRIP -->
+
+    <DashboardStatsStrip />
+
+    <!-- MAIN DASHBOARD GRID -->
+
+    <div class="row g-4">
+
+        <!-- LEFT COLUMN -->
+
+        <div class="col-12 col-xl-8 d-flex flex-column gap-4">
+
+            <!-- INVENTORY MOVEMENT -->
+
+            <InventoryMovementChart />
+
+            <!-- RECENT ACTIVITY -->
+
+            <RecentActivityFeed />
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+
+        <div class="col-12 col-xl-4">
+
+            <!-- LOW STOCK ALERTS -->
+
+            <LowStockAlerts />
+
+        </div>
+
+    </div>
+
+</div>

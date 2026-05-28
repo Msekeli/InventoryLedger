@@ -1,0 +1,94 @@
+@using Inventory.Client.Models.Inventory
+@using Inventory.Client.Services.Dashboard
+
+@inject DashboardService DashboardService
+
+@if (_isLoading)
+{
+    <LoadingSpinner Text="Loading low stock alerts..." />
+}
+else if (!_items.Any())
+{
+    <EmptyState
+        Title="Inventory Healthy"
+        Message="No low stock alerts detected." />
+}
+else
+{
+    <RadzenCard Variant="Variant.Flat"
+                class="shadow-sm border-0 h-100">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h5 class="fw-bold mb-1">
+                    Low Stock Alerts
+                </h5>
+
+                <small class="text-muted">
+                    Products requiring immediate attention
+                </small>
+
+            </div>
+
+            <RadzenIcon Icon="warning"
+                        class="fs-2 text-warning" />
+
+        </div>
+
+        <div class="d-flex flex-column gap-3">
+
+            @foreach (var item in _items.Take(6))
+            {
+                <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light">
+
+                    <div>
+
+                        <div class="fw-semibold">
+                            @item.Name
+                        </div>
+
+                        <small class="text-muted">
+                            @item.SKU
+                        </small>
+
+                    </div>
+
+                    <div class="text-end">
+
+                        <div class="fw-bold text-danger">
+                            @item.OnHand left
+                        </div>
+
+                        <small class="text-muted">
+                            Threshold: @item.LowStockThreshold
+                        </small>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+
+    </RadzenCard>
+}
+
+@code {
+
+    private bool _isLoading = true;
+
+    private List<InventoryItemDto> _items = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+
+        _items =
+            await DashboardService
+                .GetLowStockAsync();
+
+        _isLoading = false;
+    }
+}

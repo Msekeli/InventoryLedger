@@ -1,0 +1,38 @@
+<RadzenCard class="stats-card">
+
+    <div class="stats-card-content">
+
+        <div class="stats-left">
+            <p class="stats-label">@Label</p>
+            <h3 class="stats-value">@Value</h3>
+
+            @if (!string.IsNullOrWhiteSpace(SubText))
+            {
+                <small class="stats-subtext">@SubText</small>
+            }
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Icon))
+        {
+            <div class="stats-icon">
+                <RadzenIcon Icon="@Icon" />
+            </div>
+        }
+
+    </div>
+
+</RadzenCard>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Value { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? SubText { get; set; }
+
+    [Parameter]
+    public string? Icon { get; set; }
+}

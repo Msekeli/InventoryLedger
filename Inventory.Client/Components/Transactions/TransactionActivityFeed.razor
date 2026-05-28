@@ -1,0 +1,37 @@
+@using Inventory.Client.Models.Transactions
+@using System.Linq
+
+<RadzenCard class="h-100">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Recent Activity</h5>
+
+        <RadzenBadge Text="@Transactions.Count().ToString()" Shade="Shade.Light" />
+    </div>
+
+    @if (!Transactions.Any())
+    {
+        <EmptyState
+            Title="No movement activity"
+            Message="Recent inventory activity will appear here." />
+    }
+    else
+    {
+        <div class="d-flex flex-column gap-3">
+
+            @foreach (var tx in Transactions.OrderByDescending(x => x.Timestamp).Take(10))
+            {
+                <StockMovementCard Transaction="tx" />
+            }
+
+        </div>
+    }
+
+</RadzenCard>
+
+@code {
+
+    [Parameter]
+    public IEnumerable<StockTransactionDto> Transactions { get; set; }
+        = Enumerable.Empty<StockTransactionDto>();
+}

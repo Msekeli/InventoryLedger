@@ -12,20 +12,21 @@ namespace Inventory.Client.Services.Transactions
             _http = http;
         }
 
-       public async Task<List<StockTransactionDto>> GetAllAsync()
-    {
-        var result = await _http.GetFromJsonAsync<List<StockTransactionDto>>("api/transactions");
-        return result ?? new List<StockTransactionDto>();
-}      
+        public async Task<List<StockTransactionDto>> GetAllAsync()
+        {
+            var result = await _http.GetFromJsonAsync<List<StockTransactionDto>>("api/StockTransactions/recent");
+            return result ?? new List<StockTransactionDto>();
+        }
+
         public async Task<List<StockTransactionDto>> GetByItemIdAsync(int itemId)
         {
-            var result = await _http.GetFromJsonAsync<List<StockTransactionDto>>($"api/transactions/item/{itemId}");
+            var result = await _http.GetFromJsonAsync<List<StockTransactionDto>>($"api/StockTransactions/{itemId}");
             return result ?? new List<StockTransactionDto>();
         }
 
         public async Task<bool> CreateAsync(CreateStockTransactionDto model)
         {
-            var response = await _http.PostAsJsonAsync("api/transactions", model);
+            var response = await _http.PostAsJsonAsync("api/StockTransactions/receive-stock", model);
             return response.IsSuccessStatusCode;
         }
     }
