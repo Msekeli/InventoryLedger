@@ -2,96 +2,482 @@
 
 @using Inventory.Client.Models.Auth
 @using Inventory.Client.Services.Auth
+
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 
-<div class="container mt-4">
-	<h3>User Management</h3>
-	<p class="text-muted mb-4">This app currently uses demo authentication, so this page shows the current session and the built-in role model.</p>
+<div class="d-flex flex-column gap-4">
 
-	<div class="row g-3 mb-3">
-		<div class="col-lg-4">
-			<div class="card h-100">
-				<div class="card-body">
-					<h5 class="card-title">Current Session</h5>
-					@if (_isLoading)
-					{
-						<p class="text-muted mb-0">Loading user...</p>
-					}
-					else if (CurrentUser is null)
-					{
-						<p class="text-muted mb-0">No active user session.</p>
-					}
-					else
-					{
-						<div class="d-flex align-items-center justify-content-between mb-2">
-							<strong>@CurrentUserDisplayName</strong>
-							<span class="badge bg-secondary">@CurrentUser.RoleType</span>
-						</div>
-						<div class="small text-muted">User ID: @CurrentUser.Id</div>
-						<div class="small text-muted">Active: @(CurrentUser.IsActive ? "Yes" : "No")</div>
-					}
-				</div>
-			</div>
-		</div>
+    <!-- PAGE HEADER -->
 
-		<div class="col-lg-8">
-			<div class="card h-100">
-				<div class="card-body">
-					<h5 class="card-title">Role Matrix</h5>
-					<div class="table-responsive">
-						<table class="table table-sm align-middle mb-0">
-							<thead class="table-light">
-								<tr>
-									<th>Role</th>
-									<th>Can access</th>
-									<th>Notes</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>Owner</td>
-									<td>Items, Transactions, Low Stock, Inventory Summary, Suppliers, Reports, Users</td>
-									<td>Full admin access.</td>
-								</tr>
-								<tr>
-									<td>Cashier</td>
-									<td>Items, Transactions</td>
-									<td>Sales-focused access.</td>
-								</tr>
-								<tr>
-									<td>Stock Clerk</td>
-									<td>Items, Low Stock, Inventory Summary, Suppliers</td>
-									<td>Inventory operations access.</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div>
 
-	<div class="card">
-		<div class="card-body">
-			<div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
-				<div>
-					<h5 class="mb-1">User actions</h5>
-					<p class="text-muted mb-0">The backend does not expose a user management API yet, so these controls are session-level only.</p>
-				</div>
+        <h3 class="mb-1">
+            User Management
+        </h3>
 
-				<div class="d-flex gap-2">
-					<button class="btn btn-primary" @onclick="GoToLogin">Open Login</button>
-					<button class="btn btn-outline-secondary" @onclick="Reload">Refresh Session</button>
-				</div>
-			</div>
-		</div>
-	</div>
+        <div class="text-muted">
+            Session visibility and role-based access management
+        </div>
+
+    </div>
+
+    <!-- KPI STRIP -->
+
+    <RadzenRow Gap="1rem">
+
+        <!-- ACTIVE SESSION -->
+
+        <RadzenColumn Size="12"
+                      SizeMD="6"
+                      SizeLG="4">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0 h-100">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted text-uppercase fw-semibold">
+                            Active Session
+                        </small>
+
+                        <h3 class="fw-bold mb-0">
+                            @(CurrentUser is null ? "0" : "1")
+                        </h3>
+
+                    </div>
+
+                    <RadzenIcon Icon="person"
+                                class="fs-1 text-primary opacity-75" />
+
+                </div>
+
+            </RadzenCard>
+
+        </RadzenColumn>
+
+        <!-- ROLE -->
+
+        <RadzenColumn Size="12"
+                      SizeMD="6"
+                      SizeLG="4">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0 h-100">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted text-uppercase fw-semibold">
+                            Current Role
+                        </small>
+
+                        <h3 class="fw-bold mb-0 text-success">
+                            @(CurrentUser?.RoleType.ToString() ?? "Guest")
+                        </h3>
+
+                    </div>
+
+                    <RadzenIcon Icon="admin_panel_settings"
+                                class="fs-1 text-success opacity-75" />
+
+                </div>
+
+            </RadzenCard>
+
+        </RadzenColumn>
+
+        <!-- ACCOUNT STATUS -->
+
+        <RadzenColumn Size="12"
+                      SizeMD="6"
+                      SizeLG="4">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0 h-100">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted text-uppercase fw-semibold">
+                            Account Status
+                        </small>
+
+                        <h3 class="fw-bold mb-0 text-warning">
+                            @(CurrentUser?.IsActive == true
+                                ? "Active"
+                                : "Inactive")
+                        </h3>
+
+                    </div>
+
+                    <RadzenIcon Icon="verified_user"
+                                class="fs-1 text-warning opacity-75" />
+
+                </div>
+
+            </RadzenCard>
+
+        </RadzenColumn>
+
+    </RadzenRow>
+
+    <!-- CURRENT SESSION -->
+
+    <RadzenCard Variant="Variant.Flat"
+                class="shadow-sm border-0">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h5 class="fw-bold mb-1">
+                    Current Session
+                </h5>
+
+                <small class="text-muted">
+                    Authenticated inventory system session
+                </small>
+
+            </div>
+
+            <RadzenIcon Icon="badge"
+                        class="fs-2 text-primary" />
+
+        </div>
+
+        @if (_isLoading)
+        {
+            <LoadingSpinner Text="Loading session..." />
+        }
+        else if (CurrentUser is null)
+        {
+            <EmptyState
+                Title="No Active Session"
+                Message="No authenticated user session found." />
+        }
+        else
+        {
+            <div class="row g-4">
+
+                <!-- USER DETAILS -->
+
+                <div class="col-12 col-lg-6">
+
+                    <div class="p-4 rounded bg-light h-100">
+
+                        <div class="d-flex align-items-center gap-3 mb-4">
+
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+
+                                <RadzenIcon Icon="person"
+                                            class="text-primary fs-4" />
+
+                            </div>
+
+                            <div>
+
+                                <div class="fw-bold fs-5">
+                                    @CurrentUserDisplayName
+                                </div>
+
+                                <small class="text-muted">
+                                    User ID: @CurrentUser.Id
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="d-flex flex-column gap-3">
+
+                            <div class="d-flex justify-content-between">
+
+                                <span class="text-muted">
+                                    Role
+                                </span>
+
+                                <RadzenBadge Text="@CurrentUser.RoleType.ToString()"
+                                             BadgeStyle="BadgeStyle.Success"
+                                             Shade="Shade.Light"
+                                             Variant="Variant.Flat" />
+
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+
+                                <span class="text-muted">
+                                    Status
+                                </span>
+
+                                <RadzenBadge Text="ACTIVE"
+                                             BadgeStyle="BadgeStyle.Primary"
+                                             Shade="Shade.Light"
+                                             Variant="Variant.Flat" />
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- SESSION NOTES -->
+
+                <div class="col-12 col-lg-6">
+
+                    <div class="p-4 rounded bg-light h-100">
+
+                        <h6 class="fw-bold mb-3">
+                            Authentication Notes
+                        </h6>
+
+                        <div class="d-flex flex-column gap-3">
+
+                            <div class="d-flex align-items-start gap-3">
+
+                                <RadzenIcon Icon="check_circle"
+                                            class="text-success mt-1" />
+
+                                <div>
+
+                                    <div class="fw-semibold">
+                                        Role-Based Access
+                                    </div>
+
+                                    <small class="text-muted">
+                                        Navigation and dashboard visibility are controlled by authenticated roles.
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                            <div class="d-flex align-items-start gap-3">
+
+                                <RadzenIcon Icon="check_circle"
+                                            class="text-success mt-1" />
+
+                                <div>
+
+                                    <div class="fw-semibold">
+                                        Session Authentication
+                                    </div>
+
+                                    <small class="text-muted">
+                                        User sessions are validated before protected routes are rendered.
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                            <div class="d-flex align-items-start gap-3">
+
+                                <RadzenIcon Icon="schedule"
+                                            class="text-warning mt-1" />
+
+                                <div>
+
+                                    <div class="fw-semibold">
+                                        Future Enhancements
+                                    </div>
+
+                                    <small class="text-muted">
+                                        Full user CRUD, permissions management and audit logging planned for future releases.
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </RadzenCard>
+
+    <!-- ROLE MATRIX -->
+
+    <RadzenCard Variant="Variant.Flat"
+                class="shadow-sm border-0">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h5 class="fw-bold mb-1">
+                    Role Matrix
+                </h5>
+
+                <small class="text-muted">
+                    Operational access visibility across the ERP platform
+                </small>
+
+            </div>
+
+            <RadzenIcon Icon="security"
+                        class="fs-2 text-primary" />
+
+        </div>
+
+        <RadzenDataGrid Data="@roles"
+                        TItem="RoleMatrixRow"
+                        AllowPaging="false"
+                        AllowSorting="false"
+                        Responsive="true"
+                        Density="Density.Compact">
+
+            <Columns>
+
+                <!-- ROLE -->
+
+                <RadzenDataGridColumn TItem="RoleMatrixRow"
+                                      Property="Role"
+                                      Title="Role">
+
+                    <Template Context="role">
+
+                        <div class="d-flex align-items-center gap-2">
+
+                            @if (role.Role == "Owner")
+                            {
+                                <RadzenBadge Text="OWNER"
+                                             BadgeStyle="BadgeStyle.Primary"
+                                             Shade="Shade.Light"
+                                             Variant="Variant.Flat" />
+                            }
+                            else if (role.Role == "Cashier")
+                            {
+                                <RadzenBadge Text="CASHIER"
+                                             BadgeStyle="BadgeStyle.Success"
+                                             Shade="Shade.Light"
+                                             Variant="Variant.Flat" />
+                            }
+                            else
+                            {
+                                <RadzenBadge Text="STOCK CLERK"
+                                             BadgeStyle="BadgeStyle.Warning"
+                                             Shade="Shade.Light"
+                                             Variant="Variant.Flat" />
+                            }
+
+                        </div>
+
+                    </Template>
+
+                </RadzenDataGridColumn>
+
+                <!-- ACCESS -->
+
+                <RadzenDataGridColumn TItem="RoleMatrixRow"
+                                      Property="Access"
+                                      Title="Can Access" />
+
+                <!-- NOTES -->
+
+                <RadzenDataGridColumn TItem="RoleMatrixRow"
+                                      Property="Notes"
+                                      Title="Notes" />
+
+            </Columns>
+
+        </RadzenDataGrid>
+
+    </RadzenCard>
+
+    <!-- ACTIONS -->
+
+    <RadzenCard Variant="Variant.Flat"
+                class="shadow-sm border-0">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+            <div>
+
+                <h5 class="fw-bold mb-1">
+                    Session Actions
+                </h5>
+
+                <small class="text-muted">
+                    Current implementation uses demo authentication and session-based access.
+                </small>
+
+            </div>
+
+            <div class="d-flex gap-2">
+
+                <button class="btn btn-primary shadow-sm"
+                        @onclick="GoToLogin">
+
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+
+                    Open Login
+
+                </button>
+
+                <button class="btn btn-outline-secondary"
+                        @onclick="Reload">
+
+                    <i class="bi bi-arrow-clockwise me-2"></i>
+
+                    Refresh Session
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </RadzenCard>
+
 </div>
 
 @code {
+
     private AppUser? CurrentUser;
+
     private bool _isLoading = true;
+
+    private readonly List<RoleMatrixRow> roles =
+    [
+        new()
+        {
+            Role = "Owner",
+            Access =
+                "Items, Transactions, Low Stock, Inventory Summary, Suppliers, Reports, Users",
+            Notes =
+                "Full administrative and operational access."
+        },
+
+        new()
+        {
+            Role = "Cashier",
+            Access =
+                "Items, Transactions",
+            Notes =
+                "Sales-focused operational access."
+        },
+
+        new()
+        {
+            Role = "Stock Clerk",
+            Access =
+                "Items, Transactions, Low Stock, Inventory Summary, Suppliers",
+            Notes =
+                "Inventory and warehouse operational access."
+        }
+    ];
 
     protected override async Task OnInitializedAsync()
     {
@@ -101,7 +487,11 @@
     private async Task Reload()
     {
         _isLoading = true;
-        CurrentUser = await AuthService.GetCurrentUserAsync();
+
+        CurrentUser =
+            await AuthService
+                .GetCurrentUserAsync();
+
         _isLoading = false;
     }
 
@@ -114,5 +504,13 @@
     {
         Navigation.NavigateTo("/login");
     }
-}
 
+    public class RoleMatrixRow
+    {
+        public string Role { get; set; } = string.Empty;
+
+        public string Access { get; set; } = string.Empty;
+
+        public string Notes { get; set; } = string.Empty;
+    }
+}

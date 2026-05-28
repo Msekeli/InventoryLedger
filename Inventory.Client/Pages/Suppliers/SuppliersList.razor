@@ -2,156 +2,485 @@
 
 @using Inventory.Client.Models.Suppliers
 @using Inventory.Client.Services.Suppliers
+
 @inject ISupplierService SupplierService
 
-<div class="container mt-4">
-	<h3>Suppliers</h3>
+<div class="d-flex flex-column gap-4">
 
-	<div class="card mb-3">
-		<div class="card-body">
-			<div class="row g-2 align-items-center">
-				<div class="col-md-6">
-					<input class="form-control" placeholder="Search suppliers by name, code or contact" @bind="search" />
-				</div>
-				<div class="col-md-3">
-					<button class="btn btn-primary w-100" @onclick="AddSupplier">Add Supplier</button>
-				</div>
-				<div class="col-md-3">
-					<button class="btn btn-outline-secondary w-100" @onclick="Reload">Refresh</button>
-				</div>
-			</div>
-		</div>
-	</div>
+    <!-- PAGE HEADER -->
 
-	@if (showAddForm && createModel != null)
-	{
-		<div class="card mb-3">
-			<div class="card-body">
-				<h5>Add Supplier</h5>
+    <div class="d-flex justify-content-between align-items-center">
 
-				<div class="row g-2">
-					<div class="col-md-4">
-						<label class="form-label">Supplier Code</label>
-						<input class="form-control" @bind="createModel.SupplierCode" />
-					</div>
-					<div class="col-md-8">
-						<label class="form-label">Name</label>
-						<input class="form-control" @bind="createModel.Name" />
-					</div>
-					<div class="col-md-4">
-						<label class="form-label">Contact Person</label>
-						<input class="form-control" @bind="createModel.ContactPerson" />
-					</div>
-					<div class="col-md-4">
-						<label class="form-label">Phone</label>
-						<input class="form-control" @bind="createModel.PhoneNumber" />
-					</div>
-					<div class="col-md-4">
-						<label class="form-label">Email</label>
-						<input class="form-control" @bind="createModel.EmailAddress" />
-					</div>
+        <div>
 
-					<div class="col-12 mt-2 d-flex gap-2">
-						<button class="btn btn-success" @onclick="SubmitCreate">Create</button>
-						<button class="btn btn-outline-secondary" @onclick="(()=> showAddForm = false)">Cancel</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	}
+            <h3 class="mb-1">
+                Suppliers
+            </h3>
 
-	<div class="card">
-		<div class="card-body p-0">
-			<div class="table-responsive">
-				<table class="table table-hover mb-0">
-					<thead class="table-light">
-						<tr>
-							<th>Name</th>
-							<th>Code</th>
-							<th>Contact</th>
-							<th>Phone</th>
-							<th>Email</th>
-							<th style="width:140px">Actions</th>
-						</tr>
-					</thead>
-					<tbody>
-						@if (suppliers == null)
-						{
-							<tr>
-								<td colspan="6" class="text-center py-4 text-muted">Loading...</td>
-							</tr>
-						}
-						else if (!suppliers.Any())
-						{
-							<tr>
-								<td colspan="6" class="text-center py-4 text-muted">No suppliers found.</td>
-							</tr>
-						}
-						else
-						{
-							foreach (var s in suppliers.Where(s => string.IsNullOrWhiteSpace(search) || s.Name.Contains(search, StringComparison.OrdinalIgnoreCase) || s.SupplierCode.Contains(search, StringComparison.OrdinalIgnoreCase)))
-							{
-								<tr>
-									<td>@s.Name</td>
-									<td>@s.SupplierCode</td>
-									<td>@s.ContactPerson</td>
-									<td>@s.PhoneNumber</td>
-									<td>@s.EmailAddress</td>
-									<td>
-										<div class="d-flex gap-2">
-											<button class="btn btn-sm btn-outline-primary">View</button>
-											<button class="btn btn-sm btn-outline-secondary">Edit</button>
-										</div>
-									</td>
-								</tr>
-							}
-						}
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
+            <div class="text-muted">
+                Supplier relationships and inventory sources
+            </div>
+
+        </div>
+
+        <button class="btn btn-primary shadow-sm"
+                @onclick="ToggleCreateForm">
+
+            <i class="bi bi-plus-circle me-2"></i>
+
+            Add Supplier
+
+        </button>
+
+    </div>
+
+    <!-- KPI STRIP -->
+
+    <RadzenRow Gap="1rem">
+
+        <!-- TOTAL -->
+
+        <RadzenColumn Size="12"
+                      SizeMD="6"
+                      SizeLG="4">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted text-uppercase fw-semibold">
+                            Total Suppliers
+                        </small>
+
+                        <h3 class="fw-bold mb-0">
+                            @(suppliers?.Count ?? 0)
+                        </h3>
+
+                    </div>
+
+                    <RadzenIcon Icon="local_shipping"
+                                class="fs-1 text-primary opacity-75" />
+
+                </div>
+
+            </RadzenCard>
+
+        </RadzenColumn>
+
+        <!-- CONTACTS -->
+
+        <RadzenColumn Size="12"
+                      SizeMD="6"
+                      SizeLG="4">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted text-uppercase fw-semibold">
+                            Supplier Contacts
+                        </small>
+
+                        <h3 class="fw-bold mb-0 text-success">
+
+                            @(suppliers?.Count(s =>
+                                !string.IsNullOrWhiteSpace(
+                                    s.ContactPerson)) ?? 0)
+
+                        </h3>
+
+                    </div>
+
+                    <RadzenIcon Icon="support_agent"
+                                class="fs-1 text-success opacity-75" />
+
+                </div>
+
+            </RadzenCard>
+
+        </RadzenColumn>
+
+        <!-- EMAILS -->
+
+        <RadzenColumn Size="12"
+                      SizeMD="6"
+                      SizeLG="4">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted text-uppercase fw-semibold">
+                            Email Contacts
+                        </small>
+
+                        <h3 class="fw-bold mb-0 text-warning">
+
+                            @(suppliers?.Count(s =>
+                                !string.IsNullOrWhiteSpace(
+                                    s.EmailAddress)) ?? 0)
+
+                        </h3>
+
+                    </div>
+
+                    <RadzenIcon Icon="mail"
+                                class="fs-1 text-warning opacity-75" />
+
+                </div>
+
+            </RadzenCard>
+
+        </RadzenColumn>
+
+    </RadzenRow>
+
+    <!-- CREATE FORM -->
+
+    @if (showCreateForm && createModel != null)
+    {
+        <RadzenCard Variant="Variant.Flat"
+                    class="shadow-sm border-0">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <div>
+
+                    <h5 class="fw-bold mb-1">
+                        Add Supplier
+                    </h5>
+
+                    <small class="text-muted">
+                        Create a new supplier profile
+                    </small>
+
+                </div>
+
+            </div>
+
+            <RadzenRow Gap="1rem">
+
+                <!-- CODE -->
+
+                <RadzenColumn Size="12"
+                              SizeMD="4">
+
+                    <label class="form-label fw-semibold">
+                        Supplier Code
+                    </label>
+
+                    <RadzenTextBox Style="width:100%;"
+                                   @bind-Value="createModel.SupplierCode" />
+
+                </RadzenColumn>
+
+                <!-- NAME -->
+
+                <RadzenColumn Size="12"
+                              SizeMD="8">
+
+                    <label class="form-label fw-semibold">
+                        Name
+                    </label>
+
+                    <RadzenTextBox Style="width:100%;"
+                                   @bind-Value="createModel.Name" />
+
+                </RadzenColumn>
+
+                <!-- CONTACT -->
+
+                <RadzenColumn Size="12"
+                              SizeMD="4">
+
+                    <label class="form-label fw-semibold">
+                        Contact Person
+                    </label>
+
+                    <RadzenTextBox Style="width:100%;"
+                                   @bind-Value="createModel.ContactPerson" />
+
+                </RadzenColumn>
+
+                <!-- PHONE -->
+
+                <RadzenColumn Size="12"
+                              SizeMD="4">
+
+                    <label class="form-label fw-semibold">
+                        Phone Number
+                    </label>
+
+                    <RadzenTextBox Style="width:100%;"
+                                   @bind-Value="createModel.PhoneNumber" />
+
+                </RadzenColumn>
+
+                <!-- EMAIL -->
+
+                <RadzenColumn Size="12"
+                              SizeMD="4">
+
+                    <label class="form-label fw-semibold">
+                        Email Address
+                    </label>
+
+                    <RadzenTextBox Style="width:100%;"
+                                   @bind-Value="createModel.EmailAddress" />
+
+                </RadzenColumn>
+
+            </RadzenRow>
+
+            <!-- ACTIONS -->
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+
+                <button class="btn btn-outline-secondary"
+                        @onclick="ToggleCreateForm">
+
+                    Cancel
+
+                </button>
+
+                <button class="btn btn-primary"
+                        @onclick="SubmitCreate">
+
+                    <i class="bi bi-check-circle me-2"></i>
+
+                    Create Supplier
+
+                </button>
+
+            </div>
+
+        </RadzenCard>
+    }
+
+    <!-- SEARCH -->
+
+    <RadzenCard Variant="Variant.Flat"
+                class="shadow-sm border-0">
+
+        <div class="d-flex justify-content-between align-items-center gap-3">
+
+            <!-- SEARCH -->
+
+            <div class="input-group">
+
+                <span class="input-group-text bg-white border-end-0">
+
+                    <i class="bi bi-search"></i>
+
+                </span>
+
+                <input class="form-control border-start-0"
+                       placeholder="Search suppliers..."
+                       @bind="search"
+                       @bind:event="oninput" />
+
+            </div>
+
+            <!-- REFRESH -->
+
+            <button class="btn btn-outline-secondary"
+                    @onclick="Reload">
+
+                <i class="bi bi-arrow-clockwise"></i>
+
+            </button>
+
+        </div>
+
+    </RadzenCard>
+
+    <!-- GRID -->
+
+    @if (suppliers == null)
+    {
+        <LoadingSpinner Text="Loading suppliers..." />
+    }
+    else if (!FilteredSuppliers.Any())
+    {
+        <EmptyState
+            Title="No Suppliers Found"
+            Message="No suppliers available." />
+    }
+    else
+    {
+        <RadzenCard Variant="Variant.Flat"
+                    class="shadow-sm border-0">
+
+            <RadzenDataGrid Data="@FilteredSuppliers"
+                            TItem="SupplierDto"
+                            AllowPaging="true"
+                            PageSize="10"
+                            AllowSorting="true"
+                            AllowFiltering="false"
+                            Responsive="true"
+                            EmptyText="No suppliers found"
+                            Density="Density.Compact">
+
+                <Columns>
+
+                    <!-- SUPPLIER -->
+
+                    <RadzenDataGridColumn TItem="SupplierDto"
+                                          Property="Name"
+                                          Title="Supplier">
+
+                        <Template Context="supplier">
+
+                            <div class="d-flex flex-column">
+
+                                <span class="fw-semibold">
+                                    @supplier.Name
+                                </span>
+
+                                <small class="text-muted">
+                                    @supplier.SupplierCode
+                                </small>
+
+                            </div>
+
+                        </Template>
+
+                    </RadzenDataGridColumn>
+
+                    <!-- CONTACT -->
+
+                    <RadzenDataGridColumn TItem="SupplierDto"
+                                          Property="ContactPerson"
+                                          Title="Contact">
+
+                        <Template Context="supplier">
+
+                            <div class="d-flex flex-column">
+
+                                <span>
+                                    @supplier.ContactPerson
+                                </span>
+
+                                <small class="text-muted">
+                                    @supplier.PhoneNumber
+                                </small>
+
+                            </div>
+
+                        </Template>
+
+                    </RadzenDataGridColumn>
+
+                    <!-- EMAIL -->
+
+                    <RadzenDataGridColumn TItem="SupplierDto"
+                                          Property="EmailAddress"
+                                          Title="Email" />
+
+                    <!-- STATUS -->
+
+                    <RadzenDataGridColumn TItem="SupplierDto"
+                                          Title="Status"
+                                          Sortable="false"
+                                          Filterable="false"
+                                          Width="140px">
+
+                        <Template>
+
+                            <RadzenBadge Text="ACTIVE"
+                                         BadgeStyle="BadgeStyle.Success"
+                                         Shade="Shade.Light"
+                                         Variant="Variant.Flat" />
+
+                        </Template>
+
+                    </RadzenDataGridColumn>
+
+                </Columns>
+
+            </RadzenDataGrid>
+
+        </RadzenCard>
+    }
+
 </div>
 
 @code {
-	private List<SupplierDto>? suppliers;
-	private string search = string.Empty;
 
-	protected override async Task OnInitializedAsync()
-	{
-		await Reload();
-	}
+    private List<SupplierDto>? suppliers;
 
-	private async Task Reload()
-	{
-		suppliers = await SupplierService.GetAllAsync();
-		StateHasChanged();
-	}
+    private string search = string.Empty;
 
-	private void AddSupplier()
-	{
-		showAddForm = true;
-		createModel = new SupplierCreateDto();
-	}
+    private bool showCreateForm = false;
 
-	private bool showAddForm = false;
-	private SupplierCreateDto? createModel;
+    private SupplierCreateDto? createModel;
 
-	private async Task SubmitCreate()
-	{
-		if (createModel == null)
-			return;
+    protected override async Task OnInitializedAsync()
+    {
+        await Reload();
+    }
 
-		var ok = await SupplierService.CreateAsync(createModel);
-		if (ok)
-		{
-			showAddForm = false;
-			await Reload();
-		}
-		else
-		{
-			// TODO: show error
-		}
-	}
+    private IEnumerable<SupplierDto> FilteredSuppliers =>
+        suppliers?
+            .Where(s =>
+                string.IsNullOrWhiteSpace(search)
+                || s.Name.Contains(
+                    search,
+                    StringComparison.OrdinalIgnoreCase)
+                || s.SupplierCode.Contains(
+                    search,
+                    StringComparison.OrdinalIgnoreCase)
+                || (!string.IsNullOrWhiteSpace(
+                        s.ContactPerson)
+                    && s.ContactPerson.Contains(
+                        search,
+                        StringComparison.OrdinalIgnoreCase)))
+        ?? Enumerable.Empty<SupplierDto>();
+
+    private async Task Reload()
+    {
+        suppliers =
+            await SupplierService
+                .GetAllAsync();
+
+        StateHasChanged();
+    }
+
+    private void ToggleCreateForm()
+    {
+        showCreateForm =
+            !showCreateForm;
+
+        if (showCreateForm)
+        {
+            createModel =
+                new SupplierCreateDto();
+        }
+    }
+
+    private async Task SubmitCreate()
+    {
+        if (createModel == null)
+            return;
+
+        var ok =
+            await SupplierService
+                .CreateAsync(createModel);
+
+        if (ok)
+        {
+            showCreateForm = false;
+
+            await Reload();
+        }
+    }
 }
-

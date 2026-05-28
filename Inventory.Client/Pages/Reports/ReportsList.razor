@@ -1,57 +1,479 @@
 @page "/reports"
 
-<div class="container mt-4">
-	<h3>Reports</h3>
+<div class="d-flex flex-column gap-4">
 
-	<div class="card mb-3">
-		<div class="card-body">
-			<div class="row g-2">
-				<div class="col-md-4">
-					<label class="form-label">Report Type</label>
-					<select class="form-select">
-						<option>Inventory Summary</option>
-						<option>Low Stock</option>
-						<option>Transactions</option>
-					</select>
-				</div>
+    <!-- PAGE HEADER -->
 
-				<div class="col-md-3">
-					<label class="form-label">From</label>
-					<input type="date" class="form-control" />
-				</div>
+    <div>
 
-				<div class="col-md-3">
-					<label class="form-label">To</label>
-					<input type="date" class="form-control" />
-				</div>
+        <h3 class="mb-1">
+            Reports
+        </h3>
 
-				<div class="col-md-2 d-flex align-items-end">
-					<button class="btn btn-primary w-100">Generate</button>
-				</div>
-			</div>
-		</div>
-	</div>
+        <div class="text-muted">
+            Operational reporting and export management
+        </div>
 
-	<div class="card">
-		<div class="card-body p-0">
-			<div class="table-responsive">
-				<table class="table table-hover mb-0">
-					<thead class="table-light">
-						<tr>
-							<th>Report</th>
-							<th>Type</th>
-							<th>Created</th>
-							<th style="width:120px">Actions</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td colspan="4" class="text-center py-4 text-muted">No reports generated yet.</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
+    </div>
+
+    <!-- KPI STRIP -->
+
+    <RadzenRow Gap="1rem">
+
+        <!-- GENERATED REPORTS -->
+
+        <RadzenColumn Size="12"
+                      SizeMD="6"
+                      SizeLG="3">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0 h-100">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted text-uppercase fw-semibold">
+                            Generated Reports
+                        </small>
+
+                        <h3 class="fw-bold mb-0">
+                            @reports.Count
+                        </h3>
+
+                    </div>
+
+                    <RadzenIcon Icon="description"
+                                class="fs-1 text-primary opacity-75" />
+
+                </div>
+
+            </RadzenCard>
+
+        </RadzenColumn>
+
+        <!-- INVENTORY REPORTS -->
+
+        <RadzenColumn Size="12"
+                      SizeMD="6"
+                      SizeLG="3">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0 h-100">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted text-uppercase fw-semibold">
+                            Inventory Reports
+                        </small>
+
+                        <h3 class="fw-bold mb-0 text-success">
+                            @reports.Count(r => r.Type == "Inventory")
+                        </h3>
+
+                    </div>
+
+                    <RadzenIcon Icon="inventory_2"
+                                class="fs-1 text-success opacity-75" />
+
+                </div>
+
+            </RadzenCard>
+
+        </RadzenColumn>
+
+        <!-- TRANSACTION REPORTS -->
+
+        <RadzenColumn Size="12"
+                      SizeMD="6"
+                      SizeLG="3">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0 h-100">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted text-uppercase fw-semibold">
+                            Transaction Reports
+                        </small>
+
+                        <h3 class="fw-bold mb-0 text-warning">
+                            @reports.Count(r => r.Type == "Transactions")
+                        </h3>
+
+                    </div>
+
+                    <RadzenIcon Icon="receipt_long"
+                                class="fs-1 text-warning opacity-75" />
+
+                </div>
+
+            </RadzenCard>
+
+        </RadzenColumn>
+
+        <!-- EXPORT READY -->
+
+        <RadzenColumn Size="12"
+                      SizeMD="6"
+                      SizeLG="3">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0 h-100">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted text-uppercase fw-semibold">
+                            Export Ready
+                        </small>
+
+                        <h3 class="fw-bold mb-0 text-danger">
+                            @reports.Count
+                        </h3>
+
+                    </div>
+
+                    <RadzenIcon Icon="print"
+                                class="fs-1 text-danger opacity-75" />
+
+                </div>
+
+            </RadzenCard>
+
+        </RadzenColumn>
+
+    </RadzenRow>
+
+    <!-- REPORT GENERATOR -->
+
+    <RadzenCard Variant="Variant.Flat"
+                class="shadow-sm border-0">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h5 class="fw-bold mb-1">
+                    Generate Report
+                </h5>
+
+                <small class="text-muted">
+                    Create operational inventory and transaction reports
+                </small>
+
+            </div>
+
+            <RadzenIcon Icon="assessment"
+                        class="fs-2 text-primary" />
+
+        </div>
+
+        <RadzenRow Gap="1rem">
+
+            <!-- REPORT TYPE -->
+
+            <RadzenColumn Size="12"
+                          SizeMD="4">
+
+                <label class="form-label fw-semibold">
+                    Report Type
+                </label>
+
+                <RadzenDropDown TValue="string"
+                                Data="@reportTypes"
+                                Style="width:100%;"
+                                @bind-Value="selectedReportType" />
+
+            </RadzenColumn>
+
+            <!-- FROM -->
+
+            <RadzenColumn Size="12"
+                          SizeMD="3">
+
+                <label class="form-label fw-semibold">
+                    From
+                </label>
+
+                <RadzenDatePicker Style="width:100%;"
+                                  @bind-Value="fromDate" />
+
+            </RadzenColumn>
+
+            <!-- TO -->
+
+            <RadzenColumn Size="12"
+                          SizeMD="3">
+
+                <label class="form-label fw-semibold">
+                    To
+                </label>
+
+                <RadzenDatePicker Style="width:100%;"
+                                  @bind-Value="toDate" />
+
+            </RadzenColumn>
+
+            <!-- GENERATE -->
+
+            <RadzenColumn Size="12"
+                          SizeMD="2"
+                          class="d-flex align-items-end">
+
+                <button class="btn btn-primary w-100 shadow-sm"
+                        @onclick="GenerateReport">
+
+                    <i class="bi bi-file-earmark-text me-2"></i>
+
+                    Generate
+
+                </button>
+
+            </RadzenColumn>
+
+        </RadzenRow>
+
+    </RadzenCard>
+
+    <!-- REPORTS GRID -->
+
+    <RadzenCard Variant="Variant.Flat"
+                class="shadow-sm border-0">
+
+        <RadzenDataGrid Data="@reports"
+                        TItem="ReportRow"
+                        AllowPaging="true"
+                        PageSize="8"
+                        AllowSorting="true"
+                        Responsive="true"
+                        EmptyText="No reports available"
+                        Density="Density.Compact">
+
+            <Columns>
+
+                <!-- REPORT -->
+
+                <RadzenDataGridColumn TItem="ReportRow"
+                                      Property="Name"
+                                      Title="Report">
+
+                    <Template Context="report">
+
+                        <div class="d-flex flex-column">
+
+                            <span class="fw-semibold">
+                                @report.Name
+                            </span>
+
+                            <small class="text-muted">
+                                Generated by @report.GeneratedBy
+                            </small>
+
+                        </div>
+
+                    </Template>
+
+                </RadzenDataGridColumn>
+
+                <!-- TYPE -->
+
+                <RadzenDataGridColumn TItem="ReportRow"
+                                      Property="Type"
+                                      Title="Type">
+
+                    <Template Context="report">
+
+                        @if (report.Type == "Inventory")
+                        {
+                            <RadzenBadge Text="INVENTORY"
+                                         BadgeStyle="BadgeStyle.Success"
+                                         Shade="Shade.Light"
+                                         Variant="Variant.Flat" />
+                        }
+                        else if (report.Type == "Transactions")
+                        {
+                            <RadzenBadge Text="TRANSACTIONS"
+                                         BadgeStyle="BadgeStyle.Warning"
+                                         Shade="Shade.Light"
+                                         Variant="Variant.Flat" />
+                        }
+                        else
+                        {
+                            <RadzenBadge Text="LOW STOCK"
+                                         BadgeStyle="BadgeStyle.Danger"
+                                         Shade="Shade.Light"
+                                         Variant="Variant.Flat" />
+                        }
+
+                    </Template>
+
+                </RadzenDataGridColumn>
+
+                <!-- CREATED -->
+
+                <RadzenDataGridColumn TItem="ReportRow"
+                                      Property="Created"
+                                      Title="Created">
+
+                    <Template Context="report">
+
+                        <span class="fw-semibold">
+
+                            @report.Created.ToString("dd MMM yyyy")
+
+                        </span>
+
+                    </Template>
+
+                </RadzenDataGridColumn>
+
+                <!-- STATUS -->
+
+                <RadzenDataGridColumn TItem="ReportRow"
+                                      Title="Status">
+
+                    <Template>
+
+                        <RadzenBadge Text="READY"
+                                     BadgeStyle="BadgeStyle.Success"
+                                     Shade="Shade.Light"
+                                     Variant="Variant.Flat" />
+
+                    </Template>
+
+                </RadzenDataGridColumn>
+
+                <!-- ACTIONS -->
+
+                <RadzenDataGridColumn TItem="ReportRow"
+                                      Title="Actions"
+                                      Width="180px"
+                                      Sortable="false"
+                                      Filterable="false">
+
+                    <Template>
+
+                        <div class="d-flex gap-2">
+
+                            <!-- VIEW -->
+
+                            <button class="btn btn-sm btn-outline-primary">
+
+                                <i class="bi bi-eye"></i>
+
+                            </button>
+
+                            <!-- PRINT -->
+
+                            <button class="btn btn-sm btn-outline-secondary">
+
+                                <i class="bi bi-printer"></i>
+
+                            </button>
+
+                            <!-- EXPORT -->
+
+                            <button class="btn btn-sm btn-outline-success">
+
+                                <i class="bi bi-download"></i>
+
+                            </button>
+
+                        </div>
+
+                    </Template>
+
+                </RadzenDataGridColumn>
+
+            </Columns>
+
+        </RadzenDataGrid>
+
+    </RadzenCard>
+
 </div>
 
+@code {
+
+    private List<string> reportTypes =
+    [
+        "Inventory Summary",
+        "Low Stock",
+        "Transactions"
+    ];
+
+    private string selectedReportType =
+        "Inventory Summary";
+
+    private DateTime fromDate =
+        DateTime.Today.AddDays(-7);
+
+    private DateTime toDate =
+        DateTime.Today;
+
+    private List<ReportRow> reports = new()
+    {
+        new()
+        {
+            Name = "Inventory Summary - May",
+            Type = "Inventory",
+            GeneratedBy = "Admin",
+            Created = DateTime.Today
+        },
+
+        new()
+        {
+            Name = "Low Stock Audit",
+            Type = "Low Stock",
+            GeneratedBy = "Admin",
+            Created = DateTime.Today.AddDays(-1)
+        },
+
+        new()
+        {
+            Name = "Transaction Movement",
+            Type = "Transactions",
+            GeneratedBy = "Admin",
+            Created = DateTime.Today.AddDays(-2)
+        }
+    };
+
+    private void GenerateReport()
+    {
+        reports.Insert(0,
+            new ReportRow
+            {
+                Name =
+                    $"{selectedReportType} Report",
+
+                Type =
+                    selectedReportType switch
+                    {
+                        "Inventory Summary" => "Inventory",
+                        "Transactions" => "Transactions",
+                        _ => "Low Stock"
+                    },
+
+                GeneratedBy = "Admin",
+
+                Created = DateTime.Now
+            });
+    }
+
+    public class ReportRow
+    {
+        public string Name { get; set; } = string.Empty;
+
+        public string Type { get; set; } = string.Empty;
+
+        public string GeneratedBy { get; set; } = string.Empty;
+
+        public DateTime Created { get; set; }
+    }
+}
