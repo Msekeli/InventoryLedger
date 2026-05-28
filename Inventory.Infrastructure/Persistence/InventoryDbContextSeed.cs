@@ -1,5 +1,6 @@
+using Bogus;
 using Inventory.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+using Inventory.Domain.Enums;
 
 namespace Inventory.Infrastructure.Persistence;
 
@@ -7,79 +8,142 @@ public static class InventoryDbContextSeed
 {
     public static async Task SeedAsync(InventoryDbContext db)
     {
-        // Wipe data
+        Randomizer.Seed = new Random(2026);
+
+        // Remove generated operational data only
         db.StockTransactions.RemoveRange(db.StockTransactions);
-        db.Items.RemoveRange(db.Items);
+        db.AppUsers.RemoveRange(db.AppUsers);
+        db.AppRoles.RemoveRange(db.AppRoles);
+
         await db.SaveChangesAsync();
 
-        // Seed Items
-        var items = new List<Item>
+        // =========================
+        // Roles
+        // =========================
+
+        var roles = new List<AppRole>
         {
-            new Item { SKU = "SP-001", Name = "Steak & Chops Spice", UnitPrice = 29.99m, LowStockThreshold = 20 },
-            new Item { SKU = "SP-002", Name = "Chicken BBQ Spice", UnitPrice = 25.50m, LowStockThreshold = 15 },
-            new Item { SKU = "SP-003", Name = "Curry Spice Medium", UnitPrice = 23.75m, LowStockThreshold = 15 },
-            new Item { SKU = "SP-004", Name = "Garlic & Herb Spice", UnitPrice = 21.90m, LowStockThreshold = 10 },
-            new Item { SKU = "SA-001", Name = "Beef Sausage (1kg)", UnitPrice = 89.99m, LowStockThreshold = 10 },
-            new Item { SKU = "SA-002", Name = "Pork Sausage (1kg)", UnitPrice = 92.50m, LowStockThreshold = 10 },
-            new Item { SKU = "BG-001", Name = "Beef Burger Patty (4pcs)", UnitPrice = 69.99m, LowStockThreshold = 12 },
-            new Item { SKU = "BG-002", Name = "Chicken Burger Patty (4pcs)", UnitPrice = 62.50m, LowStockThreshold = 12 },
-            new Item { SKU = "MX-001", Name = "Boerewors Mix Spice", UnitPrice = 34.99m, LowStockThreshold = 15 },
-            new Item { SKU = "MX-002", Name = "Sausage Casing (10m)", UnitPrice = 110.00m, LowStockThreshold = 5 }
+            new() { Name = "Owner" },
+            new() { Name = "Cashier" },
+            new() { Name = "Stock Clerk" }
         };
 
-        await db.Items.AddRangeAsync(items);
+        await db.AppRoles.AddRangeAsync(roles);
         await db.SaveChangesAsync();
 
-        var random = new Random();
+        // =========================
+        // Users
+        // =========================
+
+        var users = new Faker<AppUser>()
+            .RuleFor(u => u.FirstName, f => f.Name.FirstName())
+            .RuleFor(u => u.LastName, f => f.Name.LastName())
+            .RuleFor(u => u.IsActive, true)
+            .RuleFor(u => u.AppRoleId, f => f.PickRandom(roles).Id)
+            .Generate(5);
+
+        await db.AppUsers.AddRangeAsync(users);
+        await db.SaveChangesAsync();
+
+        // =========================
+        // IMPORTANT:
+        // Items and Suppliers are
+        // manually curated business data.
+        // Seeder must NOT recreate them.
+        // =========================
+
+        var items = db.Items.ToList();
+
+        if (!items.Any())
+            return;
+
+        var random = new Random(2026);
+
         var transactions = new List<StockTransaction>();
 
         foreach (var item in items)
         {
-            int startingStock = random.Next(80, 150);
+            int currentStock = random.Next(30, 80);
 
-            // 1. Add initial stock
+            // =========================
+            // Opening Stock
+            // =========================
+
             transactions.Add(new StockTransaction
             {
                 ItemId = item.Id,
-                QuantityChange = startingStock,
-                Reference = "Initial stock",
-                Timestamp = DateTime.UtcNow.AddDays(-30).AddHours(random.Next(1, 8))
+                Quantity = currentStock,
+                TransactionType = TransactionType.StockReceived,
+                Timestamp = DateTime.UtcNow.AddDays(-30),
+                ReferenceNumber = $"OPEN-{item.Id}",
+                Notes = "Opening stock balance",
+                PerformedByUserId = random.Next(1, 6)
             });
 
-            // 2. Now simulate activity for each of the last 30 days
-            for (int day = 0; day < 30; day++)
+            int movementCount = random.Next(6, 12);
+
+            DateTime movementDate = DateTime.UtcNow.AddDays(-29);
+
+            for (int i = 0; i < movementCount; i++)
             {
-                DateTime dayTimestamp = DateTime.UtcNow.AddDays(-day);
+                movementDate = movementDate.AddDays(random.Next(1, 4));
 
-                // Chance of a sale each day
-                if (random.NextDouble() < 0.7)
+                bool restock = random.NextDouble() < 0.25;
+
+                // =========================
+                // STOCK RECEIVED
+                // =========================
+
+                if (restock)
                 {
-                    int saleQty = random.Next(1, 8);
+                    int receivedQty = random.Next(10, 35);
+
+                    currentStock += receivedQty;
+
                     transactions.Add(new StockTransaction
                     {
                         ItemId = item.Id,
-                        QuantityChange = -saleQty,
-                        Reference = "Sale",
-                        Timestamp = dayTimestamp.AddHours(random.Next(8, 18))
+                        Quantity = receivedQty,
+                        TransactionType = TransactionType.StockReceived,
+                        Timestamp = movementDate,
+                        ReferenceNumber = $"REC-{item.Id}-{i}",
+                        Notes = "Supplier stock received",
+                        PerformedByUserId = random.Next(1, 6)
                     });
+
+                    continue;
                 }
 
-                // Chance of restock every few days
-                if (random.NextDouble() < 0.2)
+                // =========================
+                // Prevent Negative Stock
+                // =========================
+
+                if (currentStock <= 5)
+                    continue;
+
+                // =========================
+                // SALE
+                // =========================
+
+                int saleQty = random.Next(1, Math.Min(currentStock, 8));
+
+                currentStock -= saleQty;
+
+                transactions.Add(new StockTransaction
                 {
-                    int restockQty = random.Next(10, 40);
-                    transactions.Add(new StockTransaction
-                    {
-                        ItemId = item.Id,
-                        QuantityChange = restockQty,
-                        Reference = "Restock",
-                        Timestamp = dayTimestamp.AddHours(random.Next(10, 16))
-                    });
-                }
+                    ItemId = item.Id,
+                    Quantity = saleQty,
+                    TransactionType = TransactionType.Sale,
+                    Timestamp = movementDate,
+                    ReferenceNumber = $"SAL-{item.Id}-{i}",
+                    Notes = "Customer sale",
+                    PerformedByUserId = random.Next(1, 6)
+                });
             }
         }
 
         await db.StockTransactions.AddRangeAsync(transactions);
+
         await db.SaveChangesAsync();
     }
 }

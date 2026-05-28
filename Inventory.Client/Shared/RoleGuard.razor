@@ -1,0 +1,34 @@
+@using Inventory.Client.Services.Auth
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+@if (_isChecking)
+{
+    <LoadingSpinner Text="Checking access..." />
+}
+else if (_isAuthorized)
+{
+    @ChildContent
+}
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private bool _isChecking = true;
+    private bool _isAuthorized;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await AuthService.GetCurrentUserAsync();
+
+        if (user is null)
+        {
+            Navigation.NavigateTo("/login", true);
+            return;
+        }
+
+        _isAuthorized = true;
+        _isChecking = false;
+    }
+}

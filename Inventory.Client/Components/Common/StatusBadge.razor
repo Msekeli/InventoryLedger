@@ -1,0 +1,23 @@
+<span class="@GetBadgeClass()">
+    @Text
+</span>
+
+@code {
+    [Parameter]
+    public string Text { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Status { get; set; } = "default";
+
+    private string GetBadgeClass()
+    {
+        return Status.ToLower() switch
+        {
+            "success" => "status-badge status-success",
+            "warning" => "status-badge status-warning",
+            "danger" => "status-badge status-danger",
+            "info" => "status-badge status-info",
+            _ => "status-badge status-default"
+        };
+    }
+}

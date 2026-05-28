@@ -1,0 +1,77 @@
+@page "/login"
+@layout AuthLayout
+@using Inventory.Client.Models.Auth
+@using Inventory.Client.Services.Auth
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<div class="login-page">
+
+    <RadzenCard class="login-card">
+
+        <div class="login-brand">
+            <h2>Spaza Stock Manager</h2>
+            <p>Inventory ERP Login</p>
+        </div>
+
+        <EditForm Model="_request" OnValidSubmit="HandleLogin">
+
+            <div class="login-form">
+
+                <RadzenTextBox
+                    @bind-Value="_request.Username"
+                    Placeholder="Username"
+                    Style="width:100%;" />
+
+                <RadzenPassword
+                    @bind-Value="_request.Password"
+                    Placeholder="Password"
+                    Style="width:100%;" />
+
+                @if (!string.IsNullOrWhiteSpace(_errorMessage))
+                {
+                    <p class="login-error">@_errorMessage</p>
+                }
+
+                <RadzenButton
+                    Text="Login"
+                    Icon="login"
+                    ButtonStyle="ButtonStyle.Primary"
+                    Style="width:100%;"
+                    Type="ButtonType.Submit" />
+
+            </div>
+
+        </EditForm>
+
+        <div class="demo-users">
+            <small>Demo Users:</small>
+            <small>owner / owner123</small>
+            <small>cashier / cashier123</small>
+            <small>clerk / clerk123</small>
+        </div>
+
+    </RadzenCard>
+
+</div>
+
+@code {
+    private readonly LoginRequestDto _request = new();
+
+    private string? _errorMessage;
+
+    private async Task HandleLogin()
+    {
+        _errorMessage = null;
+
+        var result = await AuthService.LoginAsync(_request);
+
+        if (!result.IsAuthenticated)
+        {
+            _errorMessage = result.ErrorMessage;
+            return;
+        }
+
+       Navigation.NavigateTo("/dashboard");
+    }
+}

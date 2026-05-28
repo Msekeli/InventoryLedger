@@ -1,18 +1,23 @@
+using Inventory.Domain.Enums;
+
 namespace Inventory.Domain.Entities;
 
 public class StockTransaction
 {
-    public int Id { get; set; }                 // PK
-    public int ItemId { get; set; }             // FK in Infrastructure
-    public int QuantityChange { get; set; }     // + for in, - for out
-    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+    public int Id { get; set; }
 
-    public string Reference { get; set; } = string.Empty;
-
-    // Navigation property (EF will use it in Infrastructure)
+    public int ItemId { get; set; }
     public Item? Item { get; set; }
 
-    // Helper: distinguish positive vs negative change
-    public bool IsIncrease => QuantityChange > 0;
-    public bool IsDecrease => QuantityChange < 0;
+    public TransactionType TransactionType { get; set; }
+
+    public int Quantity { get; set; }
+
+    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+    public string ReferenceNumber { get; set; } = string.Empty;
+    public string Notes { get; set; } = string.Empty;
+
+    public int PerformedByUserId { get; set; }
+    public AppUser? PerformedBy { get; set; }
 }

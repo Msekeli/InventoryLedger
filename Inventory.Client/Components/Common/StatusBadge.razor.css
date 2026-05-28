@@ -1,0 +1,41 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* HEALTHY / ACTIVE */
+.status-success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* LOW STOCK / WARNING */
+.status-warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* OUT OF STOCK / ERROR */
+.status-danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* INFO */
+.status-info {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* DEFAULT */
+.status-default {
+  background: #f3f4f6;
+  color: #374151;
+}

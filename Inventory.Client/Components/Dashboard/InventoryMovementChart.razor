@@ -1,0 +1,168 @@
+@using Inventory.Client.Models.Transactions
+@using Inventory.Client.Services.Dashboard
+
+@inject DashboardService DashboardService
+
+@if (_isLoading)
+{
+    <LoadingSpinner Text="Loading inventory movement..." />
+}
+else if (!_transactions.Any())
+{
+    <EmptyState
+        Title="No Inventory Movement"
+        Message="No stock movement available." />
+}
+else
+{
+    <RadzenCard Variant="Variant.Flat"
+                class="shadow-sm border-0">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h5 class="fw-bold mb-1">
+                    Inventory Movement
+                </h5>
+
+                <small class="text-muted">
+                    Operational stock movement summary
+                </small>
+
+            </div>
+
+            <RadzenIcon Icon="donut_large"
+                        class="fs-2 text-primary" />
+
+        </div>
+
+        <div class="row align-items-center">
+
+            <!-- CHART -->
+
+            <div class="col-12 col-lg-7">
+
+                <RadzenChart Style="height: 220px;">
+
+                    <RadzenPieSeries Data="@_movementData"
+                                     Title="Movement"
+                                     CategoryProperty="Label"
+                                     ValueProperty="Value">
+
+                        <RadzenSeriesDataLabels Visible="true" />
+
+                    </RadzenPieSeries>
+
+                    <RadzenLegend Position="LegendPosition.Right" />
+
+                </RadzenChart>
+
+            </div>
+
+            <!-- SUMMARY -->
+
+            <div class="col-12 col-lg-5">
+
+                <div class="d-flex flex-column gap-3">
+
+                    <div class="p-3 rounded bg-light">
+
+                        <div class="text-muted small mb-1">
+                            Stock Received
+                        </div>
+
+                        <div class="fw-bold fs-4 text-success">
+                            @_stockInUnits units
+                        </div>
+
+                    </div>
+
+                    <div class="p-3 rounded bg-light">
+
+                        <div class="text-muted small mb-1">
+                            Stock Sold
+                        </div>
+
+                        <div class="fw-bold fs-4 text-danger">
+                            @_stockOutUnits units
+                        </div>
+
+                    </div>
+
+                    <div class="p-3 rounded bg-light">
+
+                        <div class="text-muted small mb-1">
+                            Total Movements
+                        </div>
+
+                        <div class="fw-bold fs-4 text-primary">
+                            @_transactions.Count
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </RadzenCard>
+}
+
+@code {
+
+    private bool _isLoading = true;
+
+    private List<StockTransactionDto> _transactions = new();
+
+    private List<MovementData> _movementData = new();
+
+    private int _stockInUnits;
+
+    private int _stockOutUnits;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+
+        _transactions =
+            await DashboardService
+                .GetRecentTransactionsAsync(30);
+
+        _stockInUnits =
+            _transactions
+                .Where(x => x.IsIncrease)
+                .Sum(x => x.Quantity);
+
+        _stockOutUnits =
+            _transactions
+                .Where(x => x.IsDecrease)
+                .Sum(x => x.Quantity);
+
+        _movementData =
+        [
+            new MovementData
+            {
+                Label = "Stock In",
+                Value = _stockInUnits
+            },
+
+            new MovementData
+            {
+                Label = "Stock Out",
+                Value = _stockOutUnits
+            }
+        ];
+
+        _isLoading = false;
+    }
+
+    public class MovementData
+    {
+        public string Label { get; set; } = string.Empty;
+
+        public double Value { get; set; }
+    }
+}

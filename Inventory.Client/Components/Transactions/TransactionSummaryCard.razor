@@ -1,0 +1,49 @@
+<RadzenCard class="h-100">
+
+    <div class="d-flex justify-content-between align-items-start">
+
+        <div>
+
+            <div class="text-muted small mb-2">
+                @Title
+            </div>
+
+            <div class="fs-3 fw-bold">
+                @Value
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(SubText))
+            {
+                <div class="text-muted small mt-2">
+                    @SubText
+                </div>
+            }
+
+        </div>
+
+        <div class="@IconContainerClass">
+            <i class="@IconClass"></i>
+        </div>
+
+    </div>
+
+</RadzenCard>
+
+@code {
+
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Value { get; set; } = string.Empty;
+
+    [Parameter]
+    public string SubText { get; set; } = string.Empty;
+
+    [Parameter]
+    public string IconClass { get; set; } = "bi bi-box";
+
+    [Parameter]
+    public string IconContainerClass { get; set; }
+        = "transaction-summary-icon";
+}

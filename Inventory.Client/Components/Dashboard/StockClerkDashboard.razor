@@ -1,0 +1,235 @@
+@using Inventory.Client.Components.Dashboard
+
+<div class="d-flex flex-column gap-4">
+
+    <!-- PAGE HEADER -->
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+
+            <h3 class="mb-1">
+                Stock Clerk Dashboard
+            </h3>
+
+            <div class="text-muted">
+                Inventory operations and warehouse monitoring
+            </div>
+
+        </div>
+
+        <!-- STATUS -->
+
+        <div class="d-flex align-items-center gap-2">
+
+            <RadzenBadge Text="INVENTORY OPERATIONS"
+                         BadgeStyle="BadgeStyle.Warning"
+                         Shade="Shade.Light"
+                         Variant="Variant.Flat" />
+
+        </div>
+
+    </div>
+
+    <!-- KPI STRIP -->
+
+    <DashboardStatsStrip />
+
+    <!-- MAIN GRID -->
+
+    <div class="row g-4">
+
+        <!-- INVENTORY MOVEMENT -->
+
+        <div class="col-12 col-xl-8">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0 h-100">
+
+                <!-- HEADER -->
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <div>
+
+                        <h5 class="fw-bold mb-1">
+                            Inventory Movement
+                        </h5>
+
+                        <small class="text-muted">
+                            Warehouse stock movement and inventory flow
+                        </small>
+
+                    </div>
+
+                    <RadzenIcon Icon="warehouse"
+                                class="fs-2 text-warning" />
+
+                </div>
+
+                <!-- CHART -->
+
+                <InventoryMovementChart />
+
+            </RadzenCard>
+
+        </div>
+
+        <!-- LOW STOCK -->
+
+        <div class="col-12 col-xl-4">
+
+            <div class="d-flex flex-column gap-4">
+
+                <!-- ALERTS -->
+
+                <LowStockAlerts />
+
+                <!-- OPERATIONS PANEL -->
+
+                <RadzenCard Variant="Variant.Flat"
+                            class="shadow-sm border-0">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+
+                        <div>
+
+                            <h6 class="fw-bold mb-1">
+                                Warehouse Notes
+                            </h6>
+
+                            <small class="text-muted">
+                                Inventory operations reminders
+                            </small>
+
+                        </div>
+
+                        <RadzenIcon Icon="inventory"
+                                    class="text-primary fs-4" />
+
+                    </div>
+
+                    <div class="d-flex flex-column gap-3">
+
+                        <!-- NOTE -->
+
+                        <div class="d-flex align-items-start gap-3">
+
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-2">
+
+                                <RadzenIcon Icon="warning"
+                                            class="text-warning" />
+
+                            </div>
+
+                            <div>
+
+                                <div class="fw-semibold">
+                                    Low stock monitoring
+                                </div>
+
+                                <small class="text-muted">
+                                    Monitor inventory thresholds and restock alerts.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <!-- NOTE -->
+
+                        <div class="d-flex align-items-start gap-3">
+
+                            <div class="bg-success bg-opacity-10 rounded-circle p-2">
+
+                                <RadzenIcon Icon="local_shipping"
+                                            class="text-success" />
+
+                            </div>
+
+                            <div>
+
+                                <div class="fw-semibold">
+                                    Supplier deliveries
+                                </div>
+
+                                <small class="text-muted">
+                                    Verify incoming inventory quantities before receiving stock.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <!-- NOTE -->
+
+                        <div class="d-flex align-items-start gap-3">
+
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-2">
+
+                                <RadzenIcon Icon="sync_alt"
+                                            class="text-primary" />
+
+                            </div>
+
+                            <div>
+
+                                <div class="fw-semibold">
+                                    Inventory adjustments
+                                </div>
+
+                                <small class="text-muted">
+                                    Track stock movement and inventory reconciliation activity.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </RadzenCard>
+
+            </div>
+
+        </div>
+
+        <!-- RECENT ACTIVITY -->
+
+        <div class="col-12">
+
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0 h-100">
+
+                <!-- HEADER -->
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <div>
+
+                        <h5 class="fw-bold mb-1">
+                            Inventory Activity
+                        </h5>
+
+                        <small class="text-muted">
+                            Recent inventory and warehouse transactions
+                        </small>
+
+                    </div>
+
+                    <RadzenIcon Icon="timeline"
+                                class="fs-2 text-primary" />
+
+                </div>
+
+                <!-- ACTIVITY -->
+
+                <RecentActivityFeed />
+
+            </RadzenCard>
+
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,30 @@
+<div class="page-header">
+
+    <div class="page-header-left">
+        <h2 class="page-title">@Title</h2>
+
+        @if (!string.IsNullOrWhiteSpace(SubTitle))
+        {
+            <p class="page-subtitle">@SubTitle</p>
+        }
+    </div>
+
+    @if (Actions is not null)
+    {
+        <div class="page-header-actions">
+            @Actions
+        </div>
+    }
+
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? SubTitle { get; set; }
+
+    [Parameter]
+    public RenderFragment? Actions { get; set; }
+}

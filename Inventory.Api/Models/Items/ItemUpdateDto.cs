@@ -8,7 +8,10 @@ public class ItemUpdateDto
     public string Name { get; set; } = string.Empty;
 
     [Range(0.01, double.MaxValue)]
-    public decimal UnitPrice { get; set; }
+    public decimal CostPrice { get; set; }
+
+    [Range(0.01, double.MaxValue)]
+    public decimal SellingPrice { get; set; }
 
     [Range(0, int.MaxValue)]
     public int LowStockThreshold { get; set; }
