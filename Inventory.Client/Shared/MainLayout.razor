@@ -118,7 +118,7 @@
         IsOwner || IsCashier || IsStockClerk;
 
     private bool CanAccessTransactions =>
-        IsOwner || IsCashier;
+    IsOwner || IsCashier || IsStockClerk;
 
     private bool CanAccessLowStock =>
         IsOwner || IsStockClerk;

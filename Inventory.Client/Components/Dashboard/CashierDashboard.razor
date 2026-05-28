@@ -1,64 +1,198 @@
-@using Inventory.Client.Components.Common
+@using Inventory.Client.Components.Dashboard
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-column gap-4">
 
-    <div>
-        <h3 class="mb-1">
-            Cashier Dashboard
-        </h3>
+    <!-- PAGE HEADER -->
 
-        <div class="text-muted">
-            Sales and checkout operations
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+
+            <h3 class="mb-1">
+                Cashier Dashboard
+            </h3>
+
+            <div class="text-muted">
+                Sales activity and checkout operations
+            </div>
+
         </div>
-    </div>
 
-</div>
+        <!-- QUICK STATUS -->
 
-<div class="row g-3 mb-4">
+        <div class="d-flex align-items-center gap-2">
 
-    <div class="col-md-4">
+            <RadzenBadge Text="POINT OF SALE"
+                         BadgeStyle="BadgeStyle.Success"
+                         Shade="Shade.Light"
+                         Variant="Variant.Flat" />
 
-        <StatsCard
-            Label="Today's Sales"
-            Value="R 12,450"
-            SubText="Completed transactions"
-            Icon="payments" />
+        </div>
 
     </div>
 
-    <div class="col-md-4">
+    <!-- KPI STRIP -->
 
-        <StatsCard
-            Label="Items Sold"
-            Value="248"
-            SubText="Products processed"
-            Icon="shopping_cart" />
+    <DashboardStatsStrip />
 
-    </div>
+    <!-- MAIN GRID -->
 
-    <div class="col-md-4">
+    <div class="row g-4">
 
-        <StatsCard
-            Label="Low Stock Alerts"
-            Value="12"
-            SubText="Products needing attention"
-            Icon="warning" />
+        <!-- RECENT ACTIVITY -->
 
-    </div>
+        <div class="col-12 col-xl-8">
 
-</div>
+            <RadzenCard Variant="Variant.Flat"
+                        class="shadow-sm border-0 h-100">
 
-<div class="row g-3">
+                <!-- HEADER -->
 
-    <div class="col-xl-7">
+                <div class="d-flex justify-content-between align-items-center mb-4">
 
-        <RecentActivityFeed />
+                    <div>
 
-    </div>
+                        <h5 class="fw-bold mb-1">
+                            Sales Activity
+                        </h5>
 
-    <div class="col-xl-5">
+                        <small class="text-muted">
+                            Recent checkout and transaction activity
+                        </small>
 
-        <LowStockAlerts />
+                    </div>
+
+                    <RadzenIcon Icon="point_of_sale"
+                                class="fs-2 text-success" />
+
+                </div>
+
+                <!-- FEED -->
+
+                <RecentActivityFeed />
+
+            </RadzenCard>
+
+        </div>
+
+        <!-- LOW STOCK -->
+
+        <div class="col-12 col-xl-4">
+
+            <div class="d-flex flex-column gap-4">
+
+                <!-- LOW STOCK -->
+
+                <LowStockAlerts />
+
+                <!-- QUICK NOTES -->
+
+                <RadzenCard Variant="Variant.Flat"
+                            class="shadow-sm border-0">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+
+                        <div>
+
+                            <h6 class="fw-bold mb-1">
+                                Checkout Notes
+                            </h6>
+
+                            <small class="text-muted">
+                                Operational cashier reminders
+                            </small>
+
+                        </div>
+
+                        <RadzenIcon Icon="notifications"
+                                    class="text-warning fs-4" />
+
+                    </div>
+
+                    <div class="d-flex flex-column gap-3">
+
+                        <!-- NOTE -->
+
+                        <div class="d-flex align-items-start gap-3">
+
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-2">
+
+                                <RadzenIcon Icon="warning"
+                                            class="text-warning" />
+
+                            </div>
+
+                            <div>
+
+                                <div class="fw-semibold">
+                                    Low stock products
+                                </div>
+
+                                <small class="text-muted">
+                                    Notify inventory staff when products are running low.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <!-- NOTE -->
+
+                        <div class="d-flex align-items-start gap-3">
+
+                            <div class="bg-success bg-opacity-10 rounded-circle p-2">
+
+                                <RadzenIcon Icon="payments"
+                                            class="text-success" />
+
+                            </div>
+
+                            <div>
+
+                                <div class="fw-semibold">
+                                    Transaction monitoring
+                                </div>
+
+                                <small class="text-muted">
+                                    Ensure all completed sales are processed correctly.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <!-- NOTE -->
+
+                        <div class="d-flex align-items-start gap-3">
+
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-2">
+
+                                <RadzenIcon Icon="inventory_2"
+                                            class="text-primary" />
+
+                            </div>
+
+                            <div>
+
+                                <div class="fw-semibold">
+                                    Inventory visibility
+                                </div>
+
+                                <small class="text-muted">
+                                    Product availability updates are synced in real time.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </RadzenCard>
+
+            </div>
+
+        </div>
 
     </div>
 

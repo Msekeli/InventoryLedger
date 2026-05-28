@@ -25,13 +25,13 @@ public class AuthService : IAuthService
         LoginRequestDto request)
     {
         if (request.Username == "owner" &&
-            request.Password == "owner123")
+            request.Password == "shopitO123!")
         {
             _currentUser = new AppUser
             {
                 Id = 1,
-                FirstName = "Demo",
-                LastName = "Owner",
+                FirstName = "Derz",
+                LastName = "Nozulu",
                 IsActive = true,
                 RoleType = RoleType.Owner
             };
@@ -46,13 +46,13 @@ public class AuthService : IAuthService
         }
 
         if (request.Username == "cashier" &&
-            request.Password == "cashier123")
+            request.Password == "shopitCA123!")
         {
             _currentUser = new AppUser
             {
                 Id = 2,
-                FirstName = "Demo",
-                LastName = "Cashier",
+                FirstName = "Lisa",
+                LastName = "Sibiya",
                 IsActive = true,
                 RoleType = RoleType.Cashier
             };
@@ -67,13 +67,13 @@ public class AuthService : IAuthService
         }
 
         if (request.Username == "clerk" &&
-            request.Password == "clerk123")
+            request.Password == "shopitC123!")
         {
             _currentUser = new AppUser
             {
                 Id = 3,
-                FirstName = "Stock",
-                LastName = "Clerk",
+                FirstName = "John",
+                LastName = "Langa",
                 IsActive = true,
                 RoleType = RoleType.StockClerk
             };
